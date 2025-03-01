@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "rootDir": "../../",
+    "baseUrl": "../../"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../core/src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
+} 

@@ -1,0 +1,29 @@
+{
+  "name": "@calendar/storybook",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@calendar/core": "workspace:*",
+    "@calendar/react": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^7.6.0",
+    "@storybook/addon-interactions": "^7.6.0",
+    "@storybook/addon-links": "^7.6.0",
+    "@storybook/blocks": "^7.6.0",
+    "@storybook/react": "^7.6.0",
+    "@storybook/react-vite": "^7.6.0",
+    "@storybook/testing-library": "^0.2.0",
+    "storybook": "^7.6.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
+  }
+} 

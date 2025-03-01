@@ -1,0 +1,34 @@
+{
+  "name": "calendar-kit",
+  "version": "1.0.0",
+  "description": "A headless calendar library with framework-specific implementations",
+  "private": true,
+  "packageManager": "pnpm@9.12.2",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "clean": "turbo run clean",
+    "storybook": "pnpm --filter @calendar/storybook dev",
+    "build-storybook": "pnpm --filter @calendar/storybook build",
+    "format:root": "biome format --write .",
+    "lint:root": "biome check .",
+    "prepare": "pnpm build"
+  },
+  "keywords": [
+    "calendar",
+    "headless",
+    "react",
+    "scheduler",
+    "date"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.13.8",
+    "turbo": "2.4.4"
+  }
+}
