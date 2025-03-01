@@ -4,7 +4,9 @@ import {
   Calendar, 
   CalendarOptions, 
   CalendarEvent, 
-  CalendarView 
+  CalendarView,
+  CalendarMonth,
+  CalendarWeek
 } from '@calendar/core';
 
 export interface UseCalendarOptions extends CalendarOptions {
@@ -27,6 +29,10 @@ export interface UseCalendarReturn {
   updateEvent: (id: string, event: Partial<CalendarEvent>) => CalendarEvent | null;
   deleteEvent: (id: string) => boolean;
   getEvents: (start?: Date, end?: Date) => CalendarEvent[];
+  getMonthGrid: () => CalendarMonth;
+  getWeekGrid: () => CalendarWeek;
+  getDayNames: (format?: 'long' | 'short' | 'narrow') => string[];
+  getMonthNames: (format?: 'long' | 'short' | 'narrow') => string[];
 }
 
 export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn {
@@ -106,6 +112,23 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     return calendar.getEvents(start, end);
   }, [calendar]);
   
+  // Fonctions de grille
+  const getMonthGrid = useCallback(() => {
+    return calendar.getMonthGrid();
+  }, [calendar]);
+  
+  const getWeekGrid = useCallback(() => {
+    return calendar.getWeekGrid();
+  }, [calendar]);
+  
+  const getDayNames = useCallback((format?: 'long' | 'short' | 'narrow') => {
+    return calendar.getDayNames(format);
+  }, [calendar]);
+  
+  const getMonthNames = useCallback((format?: 'long' | 'short' | 'narrow') => {
+    return calendar.getMonthNames(format);
+  }, [calendar]);
+  
   return {
     calendar,
     view,
@@ -120,5 +143,9 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     updateEvent,
     deleteEvent,
     getEvents,
+    getMonthGrid,
+    getWeekGrid,
+    getDayNames,
+    getMonthNames,
   };
 } 

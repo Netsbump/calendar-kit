@@ -1,16 +1,18 @@
-import React, { ReactNode, createContext, useContext } from 'react';
+import { ReactNode, createContext, useContext } from 'react';
 import { CalendarView, CalendarEvent } from '@calendar/core';
 import { useCalendar, UseCalendarOptions, UseCalendarReturn } from '../hooks/useCalendar';
 
-// Create a context for the calendar
+// Création du contexte avec une valeur par défaut
 const CalendarContext = createContext<UseCalendarReturn | null>(null);
 
-// Hook to use the calendar context
+// Hook pour accéder au contexte du calendrier
 export function useCalendarContext(): UseCalendarReturn {
   const context = useContext(CalendarContext);
+  
   if (!context) {
-    throw new Error('useCalendarContext must be used within a HeadlessCalendar');
+    throw new Error('useCalendarContext doit être utilisé à l\'intérieur d\'un HeadlessCalendar');
   }
+  
   return context;
 }
 
@@ -18,12 +20,15 @@ export interface HeadlessCalendarProps extends UseCalendarOptions {
   children: ReactNode | ((calendarProps: UseCalendarReturn) => ReactNode);
 }
 
+/**
+ * Composant sans rendu qui fournit le contexte du calendrier à ses enfants
+ */
 export function HeadlessCalendar({ children, ...options }: HeadlessCalendarProps) {
-  const calendarProps = useCalendar(options);
+  const calendar = useCalendar(options);
   
   return (
-    <CalendarContext.Provider value={calendarProps}>
-      {typeof children === 'function' ? children(calendarProps) : children}
+    <CalendarContext.Provider value={calendar}>
+      {typeof children === 'function' ? children(calendar) : children}
     </CalendarContext.Provider>
   );
 }

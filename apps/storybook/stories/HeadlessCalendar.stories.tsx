@@ -42,9 +42,9 @@ export const Basic: Story = {
         <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '800px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div>
-              <button onClick={goToPrev}>Previous</button>
-              <button onClick={goToToday} style={{ margin: '0 10px' }}>Today</button>
-              <button onClick={goToNext}>Next</button>
+              <button type="button" onClick={goToPrev}>Previous</button>
+              <button type="button" onClick={goToToday} style={{ margin: '0 10px' }}>Today</button>
+              <button type="button" onClick={goToNext}>Next</button>
             </div>
             <div>
               <select 
@@ -100,9 +100,9 @@ export const WithSubComponents: Story = {
           <HeadlessCalendar.Navigation>
             {({ goToPrev, goToToday, goToNext, currentDate }) => (
               <div>
-                <button onClick={goToPrev}>Previous</button>
-                <button onClick={goToToday} style={{ margin: '0 10px' }}>Today</button>
-                <button onClick={goToNext}>Next</button>
+                <button type="button" onClick={goToPrev}>Previous</button>
+                <button type="button" onClick={goToToday} style={{ margin: '0 10px' }}>Today</button>
+                <button type="button" onClick={goToNext}>Next</button>
                 <span style={{ marginLeft: '15px' }}>
                   {currentDate.toLocaleDateString()}
                 </span>
@@ -137,6 +137,7 @@ export const WithSubComponents: Story = {
             }}>
               <h3>Events ({events.length})</h3>
               <button 
+                type="button"
                 onClick={() => {
                   const start = new Date();
                   const end = new Date();

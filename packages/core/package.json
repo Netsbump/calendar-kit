@@ -1,34 +1,32 @@
 {
   "name": "@calendar/core",
   "version": "0.1.0",
+  "private": true,
   "description": "Core calendar logic for calendar-kit",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup --config tsup.config.ts",
-    "dev": "tsup --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "lint": "biome check .",
-    "format": "biome format --write ."
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
   },
-  "keywords": [
-    "calendar",
-    "date",
-    "scheduler",
-    "headless"
-  ],
-  "author": "",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": ["/dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "test": "vitest run"
+  },
+  "author": "Sten Levasseur",
   "license": "MIT",
   "devDependencies": {
-    "tsup": "^8.0.1",
+    "@vitest/coverage-v8": "^1.0.0",
     "typescript": "^5.2.2",
     "vitest": "^1.0.0",
-    "@vitest/coverage-v8": "^1.0.0"
+     "tsup": "^8.3.5"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
-} 
+}

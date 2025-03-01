@@ -12,13 +12,6 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ['react', 'react-dom', '@calendar/core'],
-      output: {
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          '@calendar/core': 'CalendarKitCore',
-        },
-      },
     },
     sourcemap: true,
     outDir: 'dist',
@@ -26,14 +19,12 @@ export default defineConfig({
   plugins: [
     dts({
       include: ['src'],
-      exclude: ['node_modules', 'dist'],
       tsconfigPath: './tsconfig.build.json',
     }),
   ],
   resolve: {
     alias: {
-      '@calendar/core': resolve(__dirname, '../core/src'),
-      '@calendar/react': resolve(__dirname, './src'),
+      '@calendar/core': resolve(__dirname, '../core/dist'),
     },
   },
 }); 

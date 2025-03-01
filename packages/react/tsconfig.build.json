@@ -6,9 +6,12 @@
     "declaration": true,
     "declarationDir": "./dist",
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
-    "rootDir": "../../",
-    "baseUrl": "../../"
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@calendar/core": ["../core/dist"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../core/src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
 } 

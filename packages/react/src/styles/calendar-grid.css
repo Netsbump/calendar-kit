@@ -1,0 +1,129 @@
+/* Styles pour les composants de grille de calendrier */
+
+/* Conteneur principal */
+.calendar-month-grid,
+.calendar-week-grid {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* En-tête des jours de la semaine */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.calendar-weekday {
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Conteneur des semaines */
+.calendar-weeks {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ligne de semaine */
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.calendar-week:last-child {
+  border-bottom: none;
+}
+
+/* Conteneur de jour */
+.calendar-day-container {
+  position: relative;
+  min-height: 5rem;
+  border-right: 1px solid #e2e8f0;
+}
+
+.calendar-day-container:last-child {
+  border-right: none;
+}
+
+/* Jour */
+.calendar-day {
+  padding: 0.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styles pour différents types de jours */
+.calendar-day.current-month {
+  color: #1e293b;
+}
+
+.calendar-day.other-month {
+  color: #94a3b8;
+  background-color: #f8fafc;
+}
+
+.calendar-day.today {
+  background-color: #eff6ff;
+  font-weight: bold;
+}
+
+.calendar-day.weekend {
+  background-color: #fafafa;
+}
+
+/* Numéro du jour */
+.calendar-day-number {
+  display: inline-block;
+  width: 1.75rem;
+  height: 1.75rem;
+  line-height: 1.75rem;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.calendar-day.today .calendar-day-number {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Styles pour les événements */
+.calendar-event {
+  margin: 0.125rem 0;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  background-color: #3b82f6;
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Styles responsives */
+@media (max-width: 640px) {
+  .calendar-day-container {
+    min-height: 3.5rem;
+  }
+  
+  .calendar-weekday {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .calendar-day {
+    padding: 0.25rem;
+  }
+} 

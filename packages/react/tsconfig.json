@@ -8,8 +8,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@calendar/core": ["../core/src"]
+      "@calendar/core": ["../core/dist"]
     }
   },
   "include": ["src"],

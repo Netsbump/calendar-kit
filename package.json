@@ -28,7 +28,15 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@storybook/addon-essentials": "^8.6.3",
+    "@storybook/addon-interactions": "^8.6.3",
+    "@storybook/addon-links": "^8.6.3",
+    "@storybook/blocks": "^8.6.3",
+    "@storybook/react": "^8.6.3",
+    "@storybook/react-vite": "^8.6.3",
+    "@storybook/test": "^8.6.3",
     "@types/node": "^22.13.8",
+    "storybook": "^8.6.3",
     "turbo": "2.4.4"
   }
 }
