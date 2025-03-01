@@ -1,5 +1,17 @@
 export type CalendarView = 'day' | 'week' | 'month' | 'year';
 
+import { 
+  addDays, 
+  addWeeks, 
+  addMonths, 
+  addYears, 
+  startOfDay,
+  isWithinInterval,
+  isSameDay,
+  isSameMonth,
+  isSameYear
+} from 'date-fns';
+
 export interface CalendarOptions {
   defaultView?: CalendarView;
   defaultDate?: Date;
@@ -48,7 +60,7 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
   } = options;
   
   let currentView = defaultView;
-  let currentDate = new Date(defaultDate);
+  let currentDate = startOfDay(new Date(defaultDate));
   const events: CalendarEvent[] = [];
   
   const calendar: Calendar = {
@@ -66,47 +78,45 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     },
     
     goToDate(date: Date) {
-      currentDate = new Date(date);
+      currentDate = startOfDay(new Date(date));
     },
     
     goToNext() {
       switch (currentView) {
         case 'day':
-          currentDate.setDate(currentDate.getDate() + 1);
+          currentDate = addDays(currentDate, 1);
           break;
         case 'week':
-          currentDate.setDate(currentDate.getDate() + 7);
+          currentDate = addWeeks(currentDate, 1);
           break;
         case 'month':
-          currentDate.setMonth(currentDate.getMonth() + 1);
+          currentDate = addMonths(currentDate, 1);
           break;
         case 'year':
-          currentDate.setFullYear(currentDate.getFullYear() + 1);
+          currentDate = addYears(currentDate, 1);
           break;
       }
-      currentDate = new Date(currentDate);
     },
     
     goToPrev() {
       switch (currentView) {
         case 'day':
-          currentDate.setDate(currentDate.getDate() - 1);
+          currentDate = addDays(currentDate, -1);
           break;
         case 'week':
-          currentDate.setDate(currentDate.getDate() - 7);
+          currentDate = addWeeks(currentDate, -1);
           break;
         case 'month':
-          currentDate.setMonth(currentDate.getMonth() - 1);
+          currentDate = addMonths(currentDate, -1);
           break;
         case 'year':
-          currentDate.setFullYear(currentDate.getFullYear() - 1);
+          currentDate = addYears(currentDate, -1);
           break;
       }
-      currentDate = new Date(currentDate);
     },
     
     goToToday() {
-      currentDate = new Date();
+      currentDate = startOfDay(new Date());
     },
     
     setView(view: CalendarView) {
@@ -153,13 +163,15 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
       
       return events.filter(event => {
         if (start && end) {
-          return event.start >= start && event.end <= end;
+          return isWithinInterval(event.start, { start, end }) || 
+                 isWithinInterval(event.end, { start, end }) ||
+                 (event.start <= start && event.end >= end);
         }
         if (start) {
-          return event.start >= start;
+          return event.start >= start || event.end >= start;
         }
         if (end) {
-          return event.end <= end;
+          return event.start <= end || event.end <= end;
         }
         return true;
       });
