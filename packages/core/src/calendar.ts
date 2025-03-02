@@ -5,6 +5,7 @@ import {
   addYears, 
   startOfDay,
   isWithinInterval,
+  isSameDay,
 } from 'date-fns';
 
 // Import types from dateGrid
@@ -14,7 +15,7 @@ import {
   getDayNames as getGridDayNames, 
   getMonthNames as getGridMonthNames 
 } from './utils/dateGrid';
-import { CalendarOptions, Calendar, CalendarEvent, CalendarView } from './calendar.types';
+import type { CalendarOptions, Calendar, CalendarEvent, CalendarView } from './calendar.types';
 
 /**
  * Creates a new calendar instance
@@ -24,11 +25,15 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     defaultView = 'month',
     defaultDate = new Date(),
     firstDayOfWeek = 0,
+    events: initialEvents = [],
+    selectedDate: initialSelectedDate,
+    onSelectDate,
   } = options;
   
   let currentView = defaultView;
   let currentDate = startOfDay(new Date(defaultDate));
-  const events: CalendarEvent[] = [];
+  let selectedDate = initialSelectedDate ? startOfDay(new Date(initialSelectedDate)) : undefined;
+  const events: CalendarEvent[] = [...initialEvents];
   
   const calendar: Calendar = {
     get view() {
@@ -42,6 +47,9 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     },
     get events() {
       return [...events];
+    },
+    get selectedDate() {
+      return selectedDate ? new Date(selectedDate) : undefined;
     },
     
     goToDate(date: Date) {
@@ -145,11 +153,43 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     },
     
     getMonthGrid() {
-      return generateMonthGrid(currentDate, firstDayOfWeek);
+      const grid = generateMonthGrid(currentDate, firstDayOfWeek);
+      
+      // Add selected state and events to each day
+      for (const week of grid.weeks) {
+        for (const day of week.days) {
+          // Add selected state
+          day.isSelected = selectedDate ? isSameDay(day.date, selectedDate) : false;
+          
+          // Add events for this day
+          day.events = events.filter(event => 
+            isSameDay(day.date, event.start) || 
+            isSameDay(day.date, event.end) ||
+            (day.date >= event.start && day.date <= event.end)
+          );
+        }
+      }
+      
+      return grid;
     },
     
     getWeekGrid() {
-      return generateWeekGrid(currentDate, firstDayOfWeek);
+      const grid = generateWeekGrid(currentDate, firstDayOfWeek);
+      
+      // Add selected state and events to each day
+      for (const day of grid.days) {
+        // Add selected state
+        day.isSelected = selectedDate ? isSameDay(day.date, selectedDate) : false;
+        
+        // Add events for this day
+        day.events = events.filter(event => 
+          isSameDay(day.date, event.start) || 
+          isSameDay(day.date, event.end) ||
+          (day.date >= event.start && day.date <= event.end)
+        );
+      }
+      
+      return grid;
     },
     
     getDayNames(format: 'long' | 'short' | 'narrow' = 'short') {
@@ -158,6 +198,17 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     
     getMonthNames(format: 'long' | 'short' | 'narrow' = 'long') {
       return getGridMonthNames(format);
+    },
+    
+    selectDate(date: Date) {
+      selectedDate = startOfDay(new Date(date));
+      if (onSelectDate) {
+        onSelectDate(selectedDate);
+      }
+    },
+    
+    getSelectedDate() {
+      return selectedDate ? new Date(selectedDate) : undefined;
     }
   };
   

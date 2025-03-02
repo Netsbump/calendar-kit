@@ -1,6 +1,6 @@
-import { ReactNode, createContext, useContext } from 'react';
-import { CalendarView, CalendarEvent } from '@calendar/core';
-import { useCalendar, UseCalendarOptions, UseCalendarReturn } from '../hooks/useCalendar';
+import { type ReactNode, createContext, useContext } from 'react';
+import type { CalendarView, CalendarEvent } from '@calendar/core';
+import { useCalendar, type UseCalendarOptions, type UseCalendarReturn } from '../hooks/useCalendar';
 
 // Création du contexte avec une valeur par défaut
 const CalendarContext = createContext<UseCalendarReturn | null>(null);
@@ -83,17 +83,37 @@ HeadlessCalendar.Events = function Events({
     addEvent: (event: Omit<CalendarEvent, 'id'>) => CalendarEvent;
     updateEvent: (id: string, event: Partial<CalendarEvent>) => CalendarEvent | null;
     deleteEvent: (id: string) => boolean;
+    createEventOnDate: (date: Date, eventData?: Partial<Omit<CalendarEvent, 'id' | 'start' | 'end'>>) => CalendarEvent;
   }) => ReactNode);
   start?: Date;
   end?: Date;
 }) {
-  const { events: allEvents, addEvent, updateEvent, deleteEvent, getEvents } = useCalendarContext();
+  const { events: allEvents, addEvent, updateEvent, deleteEvent, getEvents, createEventOnDate } = useCalendarContext();
   const events = start || end ? getEvents(start, end) : allEvents;
-  const eventProps = { events, addEvent, updateEvent, deleteEvent };
+  const eventProps = { events, addEvent, updateEvent, deleteEvent, createEventOnDate };
   
   return (
     <div className="calendar-events">
       {typeof children === 'function' ? children(eventProps) : children}
+    </div>
+  );
+};
+
+HeadlessCalendar.Selection = function Selection({ 
+  children 
+}: { 
+  children: ReactNode | ((props: {
+    selectedDate?: Date;
+    selectDate: (date: Date) => void;
+    getSelectedDate: () => Date | undefined;
+  }) => ReactNode);
+}) {
+  const { selectedDate, selectDate, getSelectedDate } = useCalendarContext();
+  const selectionProps = { selectedDate, selectDate, getSelectedDate };
+  
+  return (
+    <div className="calendar-selection">
+      {typeof children === 'function' ? children(selectionProps) : children}
     </div>
   );
 }; 

@@ -10,7 +10,7 @@ import {
   isToday,
   isWeekend
 } from 'date-fns';
-import { CalendarDay, CalendarWeek, CalendarMonth } from '../calendar.types';
+import type { CalendarDay, CalendarWeek, CalendarMonth } from '../calendar.types';
 
 /**
  * Generates a calendar grid for a specific month
@@ -21,8 +21,7 @@ import { CalendarDay, CalendarWeek, CalendarMonth } from '../calendar.types';
  */
 export function generateMonthGrid(
   date: Date,
-  firstDayOfWeek: number = 0,
-  formatOptions: Intl.DateTimeFormatOptions = { day: 'numeric' }
+  firstDayOfWeek = 0,
 ): CalendarMonth {
   const monthStart = startOfMonth(date);
   const monthEnd = endOfMonth(date);
@@ -74,7 +73,7 @@ export function generateMonthGrid(
  */
 export function generateWeekGrid(
   date: Date,
-  firstDayOfWeek: number = 0
+  firstDayOfWeek = 0
 ): CalendarWeek {
   const weekStart = startOfWeek(date, { weekStartsOn: firstDayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6 });
   const weekEnd = endOfWeek(date, { weekStartsOn: firstDayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6 });
@@ -101,7 +100,7 @@ export function generateWeekGrid(
  * @returns Array of day names
  */
 export function getDayNames(
-  firstDayOfWeek: number = 0,
+  firstDayOfWeek = 0,
   formatType: 'long' | 'short' | 'narrow' = 'short'
 ): string[] {
   const weekStart = new Date(2021, 0, 3 + firstDayOfWeek); // Jan 3, 2021 is a Sunday

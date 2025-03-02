@@ -1,10 +1,14 @@
+import type { Locale } from 'date-fns';
+
 export interface CalendarDay {
     date: Date;
     dayOfMonth: number;
     isCurrentMonth: boolean;
     isToday: boolean;
     isWeekend: boolean;
+    isSelected?: boolean;
     formattedDate: string;
+    events?: CalendarEvent[];
   }
   
   export interface CalendarWeek {
@@ -23,7 +27,11 @@ export interface CalendarDay {
   export interface CalendarOptions {
     defaultView?: CalendarView;
     defaultDate?: Date;
-    firstDayOfWeek?: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, 1 = Monday, etc.
+    firstDayOfWeek?: number; // 0 = Sunday, 1 = Monday, etc.
+    locale?: Locale;
+    events?: CalendarEvent[];
+    selectedDate?: Date;
+    onSelectDate?: (date: Date) => void;
   }
   
   export interface CalendarEvent {
@@ -31,8 +39,8 @@ export interface CalendarDay {
     title: string;
     start: Date;
     end: Date;
-    allDay?: boolean;
-    [key: string]: any; // Allow for custom properties
+    allDay: boolean;
+    [key: string]: any; // Allow additional properties
   }
   
   export interface Calendar {
@@ -40,6 +48,7 @@ export interface CalendarDay {
     currentDate: Date;
     firstDayOfWeek: number;
     events: CalendarEvent[];
+    selectedDate?: Date;
     
     // Navigation methods
     goToDate: (date: Date) => void;
@@ -61,4 +70,8 @@ export interface CalendarDay {
     getWeekGrid: () => CalendarWeek;
     getDayNames: (format?: 'long' | 'short' | 'narrow') => string[];
     getMonthNames: (format?: 'long' | 'short' | 'narrow') => string[];
+    
+    // Selection
+    selectDate: (date: Date) => void;
+    getSelectedDate: () => Date | undefined;
   }

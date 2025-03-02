@@ -1,18 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
   createCalendar, 
-  Calendar, 
-  CalendarOptions, 
-  CalendarEvent, 
-  CalendarView,
-  CalendarMonth,
-  CalendarWeek
+  type Calendar, 
+  type CalendarOptions, 
+  type CalendarEvent, 
+  type CalendarView,
+  type CalendarMonth,
+  type CalendarWeek
 } from '@calendar/core';
 
 export interface UseCalendarOptions extends CalendarOptions {
   onViewChange?: (view: CalendarView) => void;
   onDateChange?: (date: Date) => void;
   onEventsChange?: (events: CalendarEvent[]) => void;
+  onSelectDate?: (date: Date) => void;
 }
 
 export interface UseCalendarReturn {
@@ -20,6 +21,7 @@ export interface UseCalendarReturn {
   view: CalendarView;
   currentDate: Date;
   events: CalendarEvent[];
+  selectedDate?: Date;
   goToDate: (date: Date) => void;
   goToNext: () => void;
   goToPrev: () => void;
@@ -33,6 +35,9 @@ export interface UseCalendarReturn {
   getWeekGrid: () => CalendarWeek;
   getDayNames: (format?: 'long' | 'short' | 'narrow') => string[];
   getMonthNames: (format?: 'long' | 'short' | 'narrow') => string[];
+  selectDate: (date: Date) => void;
+  getSelectedDate: () => Date | undefined;
+  createEventOnDate: (date: Date, eventData?: Partial<Omit<CalendarEvent, 'id' | 'start' | 'end'>>) => CalendarEvent;
 }
 
 export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn {
@@ -40,6 +45,7 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
   const [view, setViewState] = useState<CalendarView>(calendar.view);
   const [currentDate, setCurrentDateState] = useState<Date>(calendar.currentDate);
   const [events, setEventsState] = useState<CalendarEvent[]>(calendar.events);
+  const [selectedDate, setSelectedDateState] = useState<Date | undefined>(calendar.selectedDate);
   
   // Update internal state when calendar changes
   useEffect(() => {
@@ -47,6 +53,7 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
       setViewState(calendar.view);
       setCurrentDateState(calendar.currentDate);
       setEventsState(calendar.events);
+      setSelectedDateState(calendar.selectedDate);
     };
     
     // Initial update
@@ -129,11 +136,42 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     return calendar.getMonthNames(format);
   }, [calendar]);
   
+  // Fonctions de sélection
+  const selectDate = useCallback((date: Date) => {
+    calendar.selectDate(date);
+    setSelectedDateState(calendar.selectedDate);
+    options.onSelectDate?.(date);
+  }, [calendar, options.onSelectDate]);
+  
+  const getSelectedDate = useCallback(() => {
+    return calendar.getSelectedDate();
+  }, [calendar]);
+  
+  // Fonction utilitaire pour créer un événement sur une date spécifique
+  const createEventOnDate = useCallback((date: Date, eventData: Partial<Omit<CalendarEvent, 'id' | 'start' | 'end'>> = {}) => {
+    const start = new Date(date);
+    const end = new Date(date);
+    end.setHours(end.getHours() + 1); // Par défaut, un événement dure 1 heure
+    
+    const newEvent = calendar.addEvent({
+      title: eventData.title || 'Nouvel événement',
+      start,
+      end,
+      allDay: eventData.allDay || false,
+      ...eventData
+    });
+    
+    setEventsState(calendar.events);
+    options.onEventsChange?.(calendar.events);
+    return newEvent;
+  }, [calendar, options.onEventsChange]);
+  
   return {
     calendar,
     view,
     currentDate,
     events,
+    selectedDate,
     goToDate,
     goToNext,
     goToPrev,
@@ -147,5 +185,8 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     getWeekGrid,
     getDayNames,
     getMonthNames,
+    selectDate,
+    getSelectedDate,
+    createEventOnDate,
   };
 } 
