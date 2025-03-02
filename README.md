@@ -7,7 +7,6 @@ Calendar Kit est une bibliothèque headless modulaire et extensible pour la gest
 - 🧠 **Architecture headless** : Toute la logique sans aucun style prédéfini
 - 🧩 **Modulaire** : Core package + implémentations spécifiques aux frameworks
 - 🔌 **Extensible** : Conçu pour être étendu avec des plugins
-- 🚀 **Performant** : Optimisé pour gérer efficacement les événements et les rendus
 - 📦 **Léger** : Pas de dépendances externes pour le package core
 - 💪 **TypeScript** : Typé de bout en bout pour une meilleure expérience de développement
 
@@ -43,6 +42,8 @@ pnpm add @calendar/core @calendar/react
 
 ### Core (Framework-agnostic)
 
+Le package `@calendar/core` contient toute la logique de gestion du calendrier indépendante de tout framework. Il fournit une API puissante pour créer, manipuler et interroger un calendrier, gérer les événements, et générer des grilles de dates.
+
 ```typescript
 import { createCalendar } from '@calendar/core';
 
@@ -72,94 +73,45 @@ const event = calendar.addEvent({
 
 // Récupérer les événements
 const events = calendar.getEvents();
+
+// Générer des grilles de dates
+const monthGrid = calendar.getMonthGrid();
+const weekGrid = calendar.getWeekGrid();
+
+// Sélectionner une date
+calendar.selectDate(new Date(2023, 0, 15));
 ```
 
 ### React
 
-```tsx
-import { HeadlessCalendar } from '@calendar/react';
+## 📆 Composant ReactCalendar
 
-function MyCalendar() {
+Pour une utilisation simple et rapide, le composant `ReactCalendar` offre une solution prête à l'emploi avec une interface utilisateur complète :
+
+```tsx
+import { ReactCalendar } from '@calendar/react';
+
+function App() {
   return (
-    <HeadlessCalendar defaultView="month" defaultDate={new Date()}>
-      {({ view, currentDate, goToNext, goToPrev, goToToday, setView, events }) => (
-        <div>
-          {/* Votre UI personnalisée ici */}
-          <div>
-            <button onClick={goToPrev}>Précédent</button>
-            <button onClick={goToToday}>Aujourd'hui</button>
-            <button onClick={goToNext}>Suivant</button>
-          </div>
-          
-          <div>
-            <select value={view} onChange={(e) => setView(e.target.value)}>
-              <option value="day">Jour</option>
-              <option value="week">Semaine</option>
-              <option value="month">Mois</option>
-              <option value="year">Année</option>
-            </select>
-          </div>
-          
-          <div>
-            {/* Afficher le calendrier selon la vue */}
-            {view === 'month' && <MonthView date={currentDate} events={events} />}
-            {/* ... autres vues ... */}
-          </div>
-        </div>
-      )}
-    </HeadlessCalendar>
+    <ReactCalendar 
+      dayNameFormat="long"
+      withEvents={true}
+      withDaySelection={true}
+      onDayClick={(day) => console.log('Jour cliqué:', day)}
+      onEventAdd={(event) => console.log('Événement ajouté:', event)}
+      onViewChange={(view) => console.log('Vue changée:', view)}
+      onDateChange={(date) => console.log('Date changée:', date)}
+    />
   );
 }
 ```
 
-Ou avec les sous-composants :
-
-```tsx
-import { HeadlessCalendar } from '@calendar/react';
-
-function MyCalendar() {
-  return (
-    <HeadlessCalendar defaultView="month" defaultDate={new Date()}>
-      <div>
-        <HeadlessCalendar.Navigation>
-          {({ goToPrev, goToToday, goToNext }) => (
-            <div>
-              <button onClick={goToPrev}>Précédent</button>
-              <button onClick={goToToday}>Aujourd'hui</button>
-              <button onClick={goToNext}>Suivant</button>
-            </div>
-          )}
-        </HeadlessCalendar.Navigation>
-        
-        <HeadlessCalendar.ViewSelector>
-          {({ view, setView }) => (
-            <select value={view} onChange={(e) => setView(e.target.value)}>
-              <option value="day">Jour</option>
-              <option value="week">Semaine</option>
-              <option value="month">Mois</option>
-              <option value="year">Année</option>
-            </select>
-          )}
-        </HeadlessCalendar.ViewSelector>
-        
-        <HeadlessCalendar.Events>
-          {({ events }) => (
-            <div>
-              {/* Afficher les événements */}
-              {events.map(event => (
-                <div key={event.id}>
-                  <h3>{event.title}</h3>
-                  <p>{event.start.toLocaleString()} - {event.end.toLocaleString()}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </HeadlessCalendar.Events>
-      </div>
-    </HeadlessCalendar>
-  );
-}
-```
+Le composant `ReactCalendar` prend en charge plusieurs options :
+- `dayNameFormat` : Format des noms de jours ('short', 'long', 'narrow')
+- `withEvents` : Activer la gestion des événements
+- `withDaySelection` : Activer la sélection des jours
+- `className` : Classes CSS personnalisées
+- Callbacks : `onDayClick`, `onEventAdd`, `onViewChange`, `onDateChange`
 
 ## 🧩 Hooks React
 
