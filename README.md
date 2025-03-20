@@ -6,8 +6,8 @@ Calendar Kit est une bibliothèque headless modulaire et extensible pour la gest
 
 - 🧠 **Architecture headless** : Toute la logique sans aucun style prédéfini
 - 🧩 **Modulaire** : Core package + implémentations spécifiques aux frameworks
-- 🔌 **Extensible** : Conçu pour être étendu avec des plugins
-- 📦 **Léger** : Pas de dépendances externes pour le package core
+- 🔌 **Extensible** : Conçu pour être étendu avec des plugins (a voir)
+- 📦 **Léger** : Pas de dépendances externes pour le package core (uniquement date-fns)
 - 💪 **TypeScript** : Typé de bout en bout pour une meilleure expérience de développement
 
 ## 📦 Structure du projet
@@ -18,7 +18,7 @@ Le projet est organisé en monorepo avec la structure suivante :
 calendar-kit/
 ├── packages/
 │   ├── core/         # Logique principale du calendrier (framework-agnostic)
-│   ├── react/        # Implémentation React (hooks + composants)
+│   ├── react/        # Implémentation React (hooks + composants + exemples)
 │   └── ... (futures implémentations Vue, Angular, etc.)
 ├── apps/
 │   └── storybook/    # Documentation et visualisation des composants
