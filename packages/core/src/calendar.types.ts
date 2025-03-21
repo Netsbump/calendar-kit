@@ -9,6 +9,7 @@ export interface CalendarDay {
     isSelected?: boolean;
     formattedDate: string;
     events?: CalendarEvent[];
+    dayOfWeek?: string;
   }
   
   export interface CalendarWeek {

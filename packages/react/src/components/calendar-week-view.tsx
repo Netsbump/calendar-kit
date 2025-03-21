@@ -1,6 +1,6 @@
 import React from 'react';
-import { useCalendarContext } from './calendar-provider';
 import type { CalendarDay } from '@calendar/core';
+import { useCalendarContext } from './calendar-provider';
 
 export interface CalendarWeekViewProps {
   /**
@@ -14,20 +14,17 @@ export interface CalendarWeekViewProps {
   style?: React.CSSProperties;
 
   /**
-   * Fonction de rendu personnalisée pour un jour de la semaine
+   * Format des noms de jours
+   * Ce composant headless est responsable d'ajouter les noms de jours correctement formatés 
+   * à chaque jour de la semaine. Si cette prop n'est pas fournie, il utilisera la valeur du contexte.
    */
-  renderWeekday?: (props: { day: string }) => React.ReactNode;
-
-  /**
-   * Fonction de rendu personnalisée pour la ligne des jours de la semaine
-   */
-  renderWeekdays?: (props: { dayNames: string[] }) => React.ReactNode;
+  dayNameFormat?: 'short' | 'long' | 'narrow';
 
   /**
    * Fonction de rendu personnalisée pour un jour
    */
   renderDay?: (props: { 
-    day: CalendarDay;
+    day: CalendarDay; 
     onDayClick: (day: CalendarDay) => void;
     withEvents: boolean;
   }) => React.ReactNode;
@@ -38,7 +35,7 @@ export interface CalendarWeekViewProps {
   renderGrid?: (props: {
     days: CalendarDay[];
     renderDay: (props: { 
-      day: CalendarDay;
+      day: CalendarDay; 
       onDayClick: (day: CalendarDay) => void;
       withEvents: boolean;
     }) => React.ReactNode;
@@ -46,33 +43,40 @@ export interface CalendarWeekViewProps {
     withEvents: boolean;
   }) => React.ReactNode;
 
+  /**
+   * Fonction de rendu personnalisée pour la sélection d'un jour
+   */
   onDayClick?: (day: CalendarDay) => void;
+
+  /**
+   * Indique si les événements sont présents
+   */
   withEvents?: boolean;
+  
+  /**
+   * Indique si la sélection des jours est activée
+   */
+  enableDaySelection?: boolean;
 }
 
 /**
  * Composant headless pour afficher la vue hebdomadaire du calendrier
+ * Ce composant gère la logique et les données, sans se préoccuper de la présentation
  */
 export function CalendarWeekView({
   className = '',
   style,
-  renderWeekday = ({ day }) => <div className="weekday">{day}</div>,
-  renderWeekdays = ({ dayNames }) => (
-    <div className="weekdays">
-      {dayNames.map((day) => (
-        <div key={day}>
-          {renderWeekday({ day })}
-        </div>
-      ))}
-    </div>
-  ),
+  dayNameFormat,
   renderDay = ({ day, onDayClick, withEvents }) => (
     <div 
-      key={`day-${day.date.toISOString()}`}
+      key={day.date.toISOString()}
       className="calendar-day"
       onClick={() => onDayClick(day)}
     >
-      <div className="day-number">{day.dayOfMonth}</div>
+      <div className="day-header">
+        {day.dayOfWeek && <div className="day-name">{day.dayOfWeek}</div>}
+        <div className="day-number">{day.dayOfMonth}</div>
+      </div>
       {withEvents && day.events && day.events.length > 0 && (
         <div className="events">
           {day.events.map((event) => (
@@ -88,28 +92,44 @@ export function CalendarWeekView({
     <div className="week-grid">
       {days.map((day) => renderDay({ day, onDayClick, withEvents }))}
     </div>
-  )
+  ),
+  enableDaySelection = true
 }: CalendarWeekViewProps) {
   const { 
     currentDate,
     view,
     events,
     selectDate,
-    dayNames,
+    dayNames: contextDayNames,
     weekGrid
   } = useCalendarContext();
 
   const onDayClick = (day: CalendarDay) => {
-    selectDate(day.date);
+    if (enableDaySelection) {
+      selectDate(day.date);
+    }
   };
 
   const withEvents = events.length > 0;
-  const withDaySelection = true;
+
+  // Ajouter le nom du jour à chaque jour de la semaine
+  // en utilisant le format spécifié dans les props ou celui du contexte
+  const daysWithDayNames = weekGrid.days.map(day => ({
+    ...day,
+    dayOfWeek: getDayNameForDate(day.date, dayNameFormat)
+  }));
 
   return (
     <div className={`calendar-week-view ${className}`} style={style}>
-      {renderWeekdays({ dayNames })}
-      {renderGrid({ days: weekGrid.days, renderDay, onDayClick, withEvents })}
+      {renderGrid({ days: daysWithDayNames, renderDay, onDayClick, withEvents })}
     </div>
   );
+}
+
+/**
+ * Fonction utilitaire pour obtenir le nom du jour pour une date donnée
+ */
+function getDayNameForDate(date: Date, format: 'long' | 'short' | 'narrow' = 'short'): string {
+  const formatter = new Intl.DateTimeFormat('fr-FR', { weekday: format });
+  return formatter.format(date);
 } 

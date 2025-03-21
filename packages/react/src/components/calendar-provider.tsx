@@ -34,6 +34,8 @@ export interface CalendarProviderProps {
   children: ReactNode;
   defaultView?: CalendarView;
   defaultDate?: Date;
+  dayNameFormat?: 'short' | 'long' | 'narrow';
+  enableDaySelection?: boolean;
   onViewChange?: (view: CalendarView) => void;
   onDateChange?: (date: Date) => void;
   onDayClick?: (day: CalendarDay) => void;
@@ -44,6 +46,8 @@ export function CalendarProvider({
   children,
   defaultView = 'month',
   defaultDate = new Date(),
+  dayNameFormat = 'short',
+  enableDaySelection = true,
   onViewChange,
   onDateChange,
   onDayClick,
@@ -56,19 +60,26 @@ export function CalendarProvider({
     onDateChange,
   });
 
+  // Sélection de date seulement si enableDaySelection est true
+  const handleSelectDate = (date: Date) => {
+    if (enableDaySelection) {
+      calendar.selectDate(date);
+    }
+  };
+
   const value = {
     view: calendar.view,
     currentDate: calendar.currentDate,
     selectedDate: calendar.selectedDate,
     events: calendar.events,
-    dayNames: calendar.getDayNames('short'),
+    dayNames: calendar.getDayNames(dayNameFormat),
     monthGrid: calendar.getMonthGrid(),
     weekGrid: calendar.getWeekGrid(),
     goToNext: calendar.goToNext,
     goToPrev: calendar.goToPrev,
     goToToday: calendar.goToToday,
     setView: calendar.setView,
-    selectDate: calendar.selectDate,
+    selectDate: handleSelectDate,
     addEvent: calendar.addEvent,
     updateEvent: calendar.updateEvent,
     deleteEvent: calendar.deleteEvent,

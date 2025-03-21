@@ -1,12 +1,9 @@
-import { useState } from 'react';
 import type { CalendarView, CalendarDay as CoreCalendarDay, CalendarEvent } from '@calendar/core';
-import { useCalendar } from '../hooks/useCalendar';
 import { CalendarNavigationStyled } from './calendar-navigation-styled';
 import { CalendarMonthViewStyled } from './calendar-month-view-styled';
 import { CalendarWeekViewStyled } from './calendar-week-view-styled';
 import { CalendarEventsStyled } from './calendar-events-styled';
-import { CalendarProvider } from '../components/calendar-provider';
-
+import { CalendarProvider, useCalendarContext } from '../components/calendar-provider';
 
 export interface ReactCalendarProps {
   /**
@@ -51,9 +48,27 @@ export interface ReactCalendarProps {
 }
 
 /**
+ * Fonction interne qui récupère le composant de vue approprié selon la vue active
+ */
+function getViewComponent(view: CalendarView, dayNameFormat: 'short' | 'long' | 'narrow') {
+  switch(view) {
+    case 'month':
+      return <CalendarMonthViewStyled dayNameFormat={dayNameFormat} />;
+    case 'week':
+      return <CalendarWeekViewStyled dayNameFormat={dayNameFormat} />;
+    default:
+      return <CalendarMonthViewStyled dayNameFormat={dayNameFormat} />;
+  }
+}
+
+/**
  * Composant de calendrier React prêt à l'emploi mais personnalisable.
  * Ce composant est un assemblage de composants styled qui eux-mêmes
  * sont des implémentations de composants headless.
+ * 
+ * Le ReactCalendar a deux rôles principaux :
+ * 1. Configurer le CalendarProvider qui fournit le contexte global
+ * 2. Assembler les composants styled dans une interface cohérente
  */
 export function ReactCalendar({ 
   dayNameFormat = 'short',
@@ -65,121 +80,71 @@ export function ReactCalendar({
   onViewChange,
   onDateChange
 }: ReactCalendarProps) {
-  const calendar = useCalendar({
-    onViewChange,
-    onDateChange,
-    onSelectDate: (date) => {
-      if (onDayClick) {
-        // Créer un objet CalendarDay minimal pour l'appel
-        const day: CoreCalendarDay = {
-          date,
-          dayOfMonth: date.getDate(),
-          isCurrentMonth: true,
-          isToday: false,
-          isWeekend: false,
-          isSelected: true,
-          formattedDate: date.getDate().toString(),
-          events: []
-        };
-        onDayClick(day);
-      }
-    }
-  });
-  
-  const {
-    view,
-    currentDate,
-    goToNext,
-    goToPrev,
-    goToToday,
-    setView,
-    getMonthGrid,
-    getWeekGrid,
-    getDayNames,
-    addEvent,
-    events,
-    selectDate,
-    selectedDate
-  } = calendar;
-  
-  const monthGrid = getMonthGrid();
-  const weekGrid = getWeekGrid();
-  const dayNames = getDayNames(dayNameFormat);
-  
-  // État pour le formulaire d'ajout d'événement
-  const [eventTitle, setEventTitle] = useState('Nouvel événement');
-  
-  // Fonction pour gérer le clic sur un jour
-  const handleDayClick = (day: CoreCalendarDay) => {
-    if (withDaySelection) {
-      selectDate(day.date);
-    }
-    
-    if (onDayClick) {
-      onDayClick(day);
-    }
-  };
-  
-  // Fonction pour ajouter un événement
-  const handleAddEvent = () => {
-    if (selectedDate) {
-      const start = new Date(selectedDate);
-      const end = new Date(selectedDate);
-      end.setHours(end.getHours() + 1);
-      
-      const newEvent = addEvent({
-        title: eventTitle,
-        start,
-        end,
-        allDay: false
-      });
-      
-      setEventTitle('Nouvel événement');
-      
-      if (onEventAdd) {
-        onEventAdd(newEvent);
-      }
-    }
-  };
-  
   return (
     <CalendarProvider
-      defaultView={view}
-      defaultDate={currentDate}
+      defaultView="month"
+      defaultDate={new Date()}
       onViewChange={onViewChange}
       onDateChange={onDateChange}
-      onDayClick={handleDayClick}
+      onDayClick={(day) => {
+        if (onDayClick) {
+          onDayClick(day);
+        }
+      }}
       onEventAdd={onEventAdd}
+      dayNameFormat={dayNameFormat}
+      enableDaySelection={withDaySelection}
     >
-      <div className={`calendar-container ${className}`} style={{
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
-        maxWidth: '800px',
-        margin: '0 auto',
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        overflow: 'hidden',
-      }}>
-        <CalendarNavigationStyled 
-          onViewChange={onViewChange}
-          onDateChange={onDateChange}
-        />
-        
-        <div style={{ display: 'flex' }}>
-          <div className="calendar-content" style={{ padding: '16px', flex: 1 }}>
-            {view === 'month' && (
-              <CalendarMonthViewStyled/>
-            )}
-            
-            {view === 'week' && (
-              <CalendarWeekViewStyled/> 
-            )}
-          </div>
-          
-          {withEvents && withDaySelection && (
-            <CalendarEventsStyled/>
-          )}
-        </div>
-      </div>
+      <ReactCalendarContent 
+        withEvents={withEvents} 
+        withDaySelection={withDaySelection} 
+        className={className}
+        dayNameFormat={dayNameFormat}
+      />
     </CalendarProvider>
+  );
+}
+
+/**
+ * Composant interne qui utilise le contexte pour rendre le contenu du calendrier
+ * Ce pattern permet de lire le contexte après que le Provider a été initialisé
+ */
+function ReactCalendarContent({ 
+  withEvents, 
+  withDaySelection, 
+  className,
+  dayNameFormat
+}: { 
+  withEvents: boolean; 
+  withDaySelection: boolean; 
+  className: string;
+  dayNameFormat: 'short' | 'long' | 'narrow';
+}) {
+  // Accès au contexte pour le rendu conditionnel
+  const { view } = useCalendarContext();
+  
+  return (
+    <div className={`calendar-container ${className}`} style={{
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
+      maxWidth: '800px',
+      margin: '0 auto',
+      border: '1px solid #e2e8f0',
+      borderRadius: '8px',
+      overflow: 'hidden',
+    }}>
+      {/* Le composant de navigation accède au contexte via useCalendarContext */}
+      <CalendarNavigationStyled />
+      
+      <div style={{ display: 'flex' }}>
+        <div className="calendar-content" style={{ padding: '16px', flex: 1 }}>
+          {/* Rendu conditionnel basé sur la vue active */}
+          {getViewComponent(view, dayNameFormat)}
+        </div>
+        
+        {withEvents && withDaySelection && (
+          <CalendarEventsStyled />
+        )}
+      </div>
+    </div>
   );
 }

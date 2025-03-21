@@ -10,86 +10,92 @@ export interface CalendarDayProps {
   /**
    * Indique si le jour est sélectionnable
    */
-  isSelectable: boolean;
+  isSelectable?: boolean;
   
   /**
    * Fonction appelée lorsqu'un jour est cliqué
    */
-  onDayClick: (day: CoreCalendarDay) => void;
+  onDayClick?: (day: CoreCalendarDay) => void;
   
   /**
    * Indique si les événements doivent être affichés
    */
-  withEvents: boolean;
+  withEvents?: boolean;
   
   /**
    * Classes CSS personnalisées
    */
   className?: string;
+  
+  /**
+   * Style CSS personnalisé
+   */
+  style?: React.CSSProperties;
+  
+  /**
+   * Fonction de rendu personnalisée pour le contenu du jour
+   */
+  renderDayContent?: (props: {
+    day: CoreCalendarDay;
+    hasEvents: boolean;
+  }) => React.ReactNode;
 }
 
 /**
- * Composant représentant un jour dans le calendrier
+ * Composant headless représentant un jour dans le calendrier
+ * Ce composant gère uniquement la logique (clic, accessibilité) et 
+ * délègue le rendu visuel à la fonction renderDayContent
  */
 export function CalendarDay({ 
   day, 
-  isSelectable, 
-  onDayClick,
-  withEvents,
-  className = ''
+  isSelectable = true, 
+  onDayClick = () => {},
+  withEvents = false,
+  className = '',
+  style,
+  renderDayContent = ({ day, hasEvents }) => (
+    <>
+      <div>{day.dayOfMonth}</div>
+      {hasEvents && (
+        <div className="day-event-indicator" />
+      )}
+    </>
+  )
 }: CalendarDayProps) {
   const handleClick = () => {
-    onDayClick(day);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (isSelectable) {
       onDayClick(day);
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (isSelectable && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onDayClick(day);
+    }
+  };
+
+  const hasEvents = withEvents && !!day.events && day.events.length > 0;
+
+  const classNames = [
+    'calendar-day',
+    className,
+    day.isCurrentMonth ? 'current-month' : 'other-month',
+    day.isToday ? 'today' : '',
+    day.isSelected ? 'selected' : '',
+    isSelectable ? 'selectable' : ''
+  ].filter(Boolean).join(' ');
+
   return (
     <div 
-      className={`calendar-day ${className} ${day.isCurrentMonth ? 'current-month' : 'other-month'} ${day.isToday ? 'today' : ''} ${day.isSelected ? 'selected' : ''}`}
-      style={{
-        aspectRatio: '1',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: '4px',
-        backgroundColor: day.isToday 
-          ? '#eff6ff' 
-          : day.isSelected
-            ? '#e0f2fe'
-            : day.isCurrentMonth 
-              ? '#fff' 
-              : '#f8fafc',
-        border: day.isSelected
-          ? '2px solid #3b82f6'
-          : day.isToday 
-            ? '1px solid #3b82f6' 
-            : '1px solid #e2e8f0',
-        color: day.isCurrentMonth ? '#000' : '#94a3b8',
-        fontWeight: day.isToday ? 'bold' : day.isCurrentMonth ? 500 : 'normal',
-        cursor: isSelectable ? 'pointer' : 'default',
-        padding: '4px',
-      }}
+      className={classNames}
+      style={style}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role={isSelectable ? "button" : undefined}
       tabIndex={isSelectable ? 0 : undefined}
     >
-      <div>{day.dayOfMonth}</div>
-      {withEvents && day.events && day.events.length > 0 && (
-        <div style={{ 
-          marginTop: '4px', 
-          width: '6px', 
-          height: '6px', 
-          borderRadius: '50%', 
-          backgroundColor: '#3b82f6' 
-        }} />
-      )}
+      {renderDayContent({ day, hasEvents })}
     </div>
   );
 } 

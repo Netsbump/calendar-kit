@@ -1,92 +1,103 @@
 import React from 'react';
-import { CalendarMonthView } from '../components/calendar-month-view';
+import { CalendarMonthView, CalendarMonthViewProps } from '../components/calendar-month-view';
+import { CalendarDayStyled } from './calendar-day-styled';
 import type { CalendarDay } from '@calendar/core';
 
-export interface CalendarMonthViewStyledProps {
+export interface CalendarMonthViewStyledProps extends Omit<CalendarMonthViewProps, 'renderDay' | 'renderWeekday' | 'renderWeekdays'> {
   /**
-   * Classes CSS personnalisées
+   * Classe CSS pour le conteneur des jours de la semaine
    */
-  className?: string;
+  weekdaysClassName?: string;
+  
+  /**
+   * Classe CSS pour le conteneur de la grille
+   */
+  gridClassName?: string;
+  
+  /**
+   * Taille des cellules de jours
+   */
+  daySize?: 'small' | 'medium' | 'large';
+  
+  /**
+   * Style de mise en évidence pour le jour sélectionné
+   */
+  selectionStyle?: 'fill' | 'outline';
 }
 
 /**
- * Version styled du composant CalendarMonthView
+ * Composant stylisé pour la vue mensuelle du calendrier
+ * Ce composant utilise CalendarMonthView (headless) et ajoute des styles
  */
 export function CalendarMonthViewStyled({
-  className = ''
+  className = '',
+  style,
+  dayNameFormat,
+  weekdaysClassName = '',
+  gridClassName = '',
+  daySize = 'medium',
+  selectionStyle = 'outline',
+  enableDaySelection = true,
+  ...props
 }: CalendarMonthViewStyledProps) {
-  const renderGrid = ({ 
-    weeks, 
-    renderWeek, 
-    onDayClick, 
-    withEvents 
-  }: {
-    weeks: Array<{ days: CalendarDay[] }>;
-    renderWeek: (props: { 
-      week: { days: CalendarDay[] };
-      weekIndex: number;
-      onDayClick: (day: CalendarDay) => void;
-      withEvents: boolean;
-    }) => React.ReactNode;
+  // Fonction de rendu pour les jours de la semaine
+  const renderWeekday = ({ day }: { day: string }) => {
+    return (
+      <div className="weekday-name" style={{
+        textAlign: 'center',
+        fontWeight: 500, 
+        color: '#64748b',
+        padding: '8px 0',
+        fontSize: '0.875rem'
+      }}>
+        {day}
+      </div>
+    );
+  };
+
+  // Fonction de rendu pour un jour
+  const renderStyledDay = ({ day, onDayClick, withEvents }: { 
+    day: CalendarDay; 
     onDayClick: (day: CalendarDay) => void;
     withEvents: boolean;
   }) => (
-    <div style={{
-      display: 'grid',
-      gap: '4px',
-      gridTemplateRows: 'repeat(6, 1fr)'
-    }}>
-      {weeks.map((week, weekIndex) => renderWeek({ week, weekIndex, onDayClick, withEvents }))}
-    </div>
+    <CalendarDayStyled
+      key={day.date.toISOString()}
+      day={day}
+      isSelectable={enableDaySelection}
+      onDayClick={onDayClick}
+      withEvents={withEvents}
+      size={daySize}
+      selectionStyle={selectionStyle}
+    />
   );
 
   return (
     <CalendarMonthView
-      className={`calendar-month-view ${className}`}
+      className={className}
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px'
+        gap: '16px',
+        ...style
       }}
-      renderWeekday={({ day }) => (
-        <div className="weekday" style={{
-          textAlign: 'center',
-          fontWeight: 600,
-          color: '#64748b',
-          padding: '8px',
-          fontSize: '0.875rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          {day}
-        </div>
-      )}
+      dayNameFormat={dayNameFormat}
+      enableDaySelection={enableDaySelection}
+      renderWeekday={renderWeekday}
       renderWeekdays={({ dayNames }) => (
-        <div className="weekdays" style={{
+        <div className={`weekdays ${weekdaysClassName}`} style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(7, 1fr)',
-          gap: '4px',
-          marginBottom: '8px',
-          borderBottom: '1px solid #e5e7eb',
-          paddingBottom: '8px'
+          gap: '8px'
         }}>
           {dayNames.map((day) => (
-            <div key={day}>
-              <div className="weekday" style={{
-                textAlign: 'center',
-                fontWeight: 600,
-                color: '#64748b',
-                padding: '8px',
-                fontSize: '0.875rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
-                {day}
-              </div>
+            <div key={day} style={{ textAlign: 'center' }}>
+              {renderWeekday({ day })}
             </div>
           ))}
         </div>
       )}
+      renderDay={renderStyledDay}
       renderWeek={({ week, weekIndex, onDayClick, withEvents }) => (
         <div 
           key={`week-${weekIndex}`} 
@@ -94,66 +105,22 @@ export function CalendarMonthViewStyled({
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: '4px',
-            minHeight: '100px'
+            gap: '8px'
           }}
         >
-          {week.days.map((day) => (
-            <div 
-              key={`day-${day.date.toISOString()}`}
-              className="calendar-day"
-              style={{
-                border: '1px solid #e5e7eb',
-                borderRadius: '0.375rem',
-                padding: '4px',
-                minHeight: '100px',
-                backgroundColor: day.isCurrentMonth ? 'white' : '#f9fafb',
-                opacity: day.isCurrentMonth ? 1 : 0.5,
-                cursor: 'pointer'
-              }}
-              onClick={() => onDayClick(day)}
-            >
-              <div 
-                className="day-number"
-                style={{
-                  fontWeight: day.isToday ? 600 : 400,
-                  color: day.isToday ? '#3b82f6' : '#111827',
-                  marginBottom: '4px'
-                }}
-              >
-                {day.dayOfMonth}
-              </div>
-              {withEvents && day.events && day.events.length > 0 && (
-                <div className="events" style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px'
-                }}>
-                  {day.events.map((event) => (
-                    <div 
-                      key={event.id}
-                      className="event"
-                      style={{
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        padding: '2px 4px',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.75rem',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {event.title}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+          {week.days.map((day) => renderStyledDay({ day, onDayClick, withEvents }))}
         </div>
       )}
-      renderGrid={renderGrid}
+      renderGrid={({ weeks, renderWeek, onDayClick, withEvents }) => (
+        <div className={`month-grid ${gridClassName}`} style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }}>
+          {weeks.map((week, weekIndex) => renderWeek({ week, weekIndex, onDayClick, withEvents }))}
+        </div>
+      )}
+      {...props}
     />
   );
 }
