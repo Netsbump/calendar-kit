@@ -1,269 +1,203 @@
 # Calendrier simple
 
-Cet exemple montre comment créer un calendrier simple en utilisant les composants headless de @calendar/react. Il inclut la navigation entre les mois, l'affichage de la grille du calendrier et la sélection de dates.
+Cet exemple montre comment créer un calendrier simple en utilisant le composant tout-en-un `ReactCalendar` de @calendar/react. Il s'agit de la solution la plus rapide et la plus simple pour intégrer un calendrier dans votre application.
 
 ## Description
 
 Le calendrier simple comprend :
-- Une barre de navigation avec les boutons précédent/suivant
-- Une grille de calendrier affichant les jours du mois
+- Une barre de navigation avec les boutons précédent/suivant et sélection de vue
+- Une vue mensuelle ou hebdomadaire du calendrier
 - La mise en évidence du jour actuel et des jours sélectionnés
-- Un design responsive et moderne
+- Un design responsive et moderne par défaut
+- Gestion des événements (affichage, ajout, suppression)
 
 ## Code
 
+### Version de base
+
 ```tsx
-import { useCallback, useMemo } from 'react';
-import {
-  CalendarProvider,
-  CalendarNavigation,
-  CalendarGrid,
-} from '@calendar/react';
+import { ReactCalendar } from '@calendar/react';
 import './styles.css';
 
 function SimpleCalendar() {
   return (
-    <CalendarProvider>
-      <div className="calendar-container">
-        <CalendarNavigation
-          className="calendar-navigation"
-          buttonClassName="nav-button"
-          dateFormat="MMMM YYYY"
-        />
-        <CalendarGrid
-          className="calendar-grid"
-          headerClassName="calendar-header"
-          cellClassName="calendar-cell"
-          renderCell={(day) => (
-            <div
-              className={`
-                day-cell
-                ${day.isToday ? 'today' : ''}
-                ${!day.isCurrentMonth ? 'other-month' : ''}
-              `}
-            >
-              <span className="day-number">{day.dayOfMonth}</span>
-              {day.isCurrentMonth && (
-                <span className="day-name">{day.dayName}</span>
-              )}
-            </div>
-          )}
-        />
-      </div>
-    </CalendarProvider>
+    <div className="calendar-container">
+      <h1>Mon Calendrier</h1>
+      <ReactCalendar className="my-calendar" />
+    </div>
   );
 }
 
 export default SimpleCalendar;
 ```
 
-## Styles
+### Version avec personnalisation basique
+
+```tsx
+import { ReactCalendar } from '@calendar/react';
+import './styles.css';
+
+function SimpleCalendar() {
+  const handleDaySelect = (date) => {
+    console.log('Jour sélectionné:', date);
+  };
+
+  return (
+    <div className="calendar-container">
+      <h1>Mon Calendrier</h1>
+      <ReactCalendar 
+        className="my-calendar"
+        initialView="month"
+        dayNameFormat="short"
+        enableDaySelection={true}
+        onDaySelect={handleDaySelect}
+        daySize="medium"
+        selectionStyle="fill"
+      />
+    </div>
+  );
+}
+
+export default SimpleCalendar;
+```
+
+### Version avec événements
+
+```tsx
+import { ReactCalendar } from '@calendar/react';
+import { useState } from 'react';
+import './styles.css';
+
+function SimpleCalendar() {
+  const [events, setEvents] = useState([
+    {
+      id: '1',
+      title: 'Réunion',
+      start: new Date(),
+      end: new Date(new Date().getTime() + 60 * 60 * 1000),
+    },
+  ]);
+
+  const handleEventAdd = (event) => {
+    setEvents([...events, { ...event, id: Math.random().toString() }]);
+  };
+
+  const handleEventDelete = (eventId) => {
+    setEvents(events.filter(event => event.id !== eventId));
+  };
+
+  return (
+    <div className="calendar-container">
+      <h1>Mon Calendrier avec Événements</h1>
+      <ReactCalendar 
+        className="my-calendar"
+        initialEvents={events}
+        onEventAdd={handleEventAdd}
+        onEventDelete={handleEventDelete}
+        enableDaySelection={true}
+        dayNameFormat="long"
+        showEventIndicators={true}
+      />
+    </div>
+  );
+}
+
+export default SimpleCalendar;
+```
+
+## Styles CSS
 
 ```css
+/* styles.css */
 .calendar-container {
-  max-width: 800px;
+  font-family: 'Roboto', sans-serif;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
-.calendar-navigation {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background-color: #f3f4f6;
-  border-radius: 0.5rem 0.5rem 0 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.nav-button {
-  padding: 0.5rem 1rem;
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.nav-button:hover {
-  background-color: #f9fafb;
-}
-
-.nav-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #3b82f6;
-}
-
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  background-color: #e5e7eb;
-  padding: 1px;
-}
-
-.calendar-header {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  background-color: #f3f4f6;
-  padding: 1px;
-}
-
-.calendar-header > div {
-  padding: 0.5rem;
+h1 {
   text-align: center;
-  font-weight: 500;
-  color: #6b7280;
+  color: #333;
+  margin-bottom: 20px;
 }
 
-.calendar-cell {
-  background-color: white;
-  padding: 0.5rem;
-  min-height: 100px;
-}
-
-.day-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  min-height: 100px;
-  border: 1px solid #e5e7eb;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.day-cell:hover {
-  background-color: #f9fafb;
-}
-
-.day-cell.today {
-  background-color: #f0f9ff;
-}
-
-.day-cell.other-month {
-  color: #9ca3af;
-}
-
-.day-number {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #111827;
-}
-
-.day-name {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
-@media (max-width: 640px) {
-  .calendar-container {
-    padding: 0.5rem;
-  }
-
-  .day-cell {
-    min-height: 80px;
-    padding: 0.25rem;
-  }
-
-  .day-number {
-    font-size: 1rem;
-  }
-
-  .day-name {
-    font-size: 0.75rem;
-  }
+.my-calendar {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 ```
 
 ## Utilisation
 
-1. **Installation des dépendances**
+### Étape 1 : Installation
 
 ```bash
 npm install @calendar/react
 ```
 
-2. **Importation des composants**
+### Étape 2 : Importation
 
 ```tsx
-import {
-  CalendarProvider,
-  CalendarNavigation,
-  CalendarGrid,
-} from '@calendar/react';
+import { ReactCalendar } from '@calendar/react';
 ```
 
-3. **Création du composant**
+### Étape 3 : Utilisation
 
 ```tsx
-function MyCalendar() {
+function App() {
   return (
-    <CalendarProvider>
-      <div className="calendar-container">
-        <CalendarNavigation />
-        <CalendarGrid />
-      </div>
-    </CalendarProvider>
+    <div className="app">
+      <ReactCalendar />
+    </div>
   );
 }
 ```
-
-4. **Ajout des styles**
-
-Copiez les styles CSS fournis dans votre fichier de styles.
 
 ## Personnalisation
 
-Vous pouvez personnaliser l'apparence du calendrier en :
+Le composant `ReactCalendar` accepte de nombreuses props pour personnaliser son apparence et son comportement :
 
-1. **Modifiant les classes CSS** : Ajustez les styles pour correspondre à votre design
-2. **Utilisant des props** : Modifiez les props des composants pour changer leur comportement
-3. **Rendant personnalisé** : Utilisez les fonctions de rendu personnalisé pour modifier l'apparence des cellules
+### Props principales
 
-## Exemple de personnalisation
+| Prop | Type | Description |
+|------|------|-------------|
+| `initialDate` | `Date` | Date initiale du calendrier |
+| `initialView` | `'month' \| 'week'` | Vue initiale du calendrier |
+| `dayNameFormat` | `'narrow' \| 'short' \| 'long'` | Format d'affichage des noms de jours |
+| `daySize` | `'small' \| 'medium' \| 'large'` | Taille des cellules de jours |
+| `selectionStyle` | `'outline' \| 'fill'` | Style visuel de la sélection |
+| `enableDaySelection` | `boolean` | Activation de la sélection des jours |
+| `showAdjacentMonths` | `boolean` | Afficher les jours des mois adjacents |
+| `showEventIndicators` | `boolean` | Afficher les indicateurs d'événements |
 
-```tsx
-function CustomCalendar() {
-  return (
-    <CalendarProvider>
-      <div className="calendar-container">
-        <CalendarNavigation
-          renderPrevButton={() => (
-            <button className="custom-nav-button">
-              <span>←</span>
-            </button>
-          )}
-          renderNextButton={() => (
-            <button className="custom-nav-button">
-              <span>→</span>
-            </button>
-          )}
-        />
-        <CalendarGrid
-          renderCell={(day) => (
-            <div className="custom-day-cell">
-              <span className="custom-day-number">{day.dayOfMonth}</span>
-              {day.isCurrentMonth && (
-                <span className="custom-day-name">{day.dayName}</span>
-              )}
-            </div>
-          )}
-        />
-      </div>
-    </CalendarProvider>
-  );
-}
-```
+### Props de personnalisation CSS
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `className` | `string` | Classe CSS du conteneur principal |
+| `navigationClassName` | `string` | Classe CSS de la barre de navigation |
+| `viewClassName` | `string` | Classe CSS de la vue (mois/semaine) |
+| `eventsClassName` | `string` | Classe CSS de la section des événements |
+
+### Callbacks
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `onDateChange` | `(date: Date) => void` | Appelé lors du changement de date |
+| `onViewChange` | `(view: 'month' \| 'week') => void` | Appelé lors du changement de vue |
+| `onDaySelect` | `(date: Date) => void` | Appelé lors de la sélection d'un jour |
+| `onEventAdd` | `(event: CalendarEvent) => void` | Appelé lors de l'ajout d'un événement |
+| `onEventDelete` | `(eventId: string) => void` | Appelé lors de la suppression d'un événement |
+
+## Niveau de personnalisation supérieur
+
+Si vous avez besoin de plus de personnalisation, vous pouvez toujours utiliser les composants styled individuels ou les composants headless. Consultez les exemples [Calendrier avec événements](./calendar-with-events.md) et [Calendrier personnalisé](./custom-calendar.md) pour plus de détails.
 
 ## Prochaines étapes
 
-- Découvrez comment ajouter des [événements](./calendar-with-events.md)
-- Apprenez à [personnaliser](./custom-calendar.md) davantage le calendrier
-- Consultez la documentation des [composants](../components/README.md) pour plus d'options 
+- Explorez l'[architecture](../architecture.md) pour comprendre le fonctionnement interne
+- Consultez les [composants individuels](../components/README.md) pour une personnalisation plus poussée
+- Découvrez l'exemple [Calendrier avec événements](./calendar-with-events.md) pour une gestion avancée des événements 

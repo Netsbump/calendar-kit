@@ -1,23 +1,24 @@
 # Introduction à @calendar/react
 
-@calendar/react est une bibliothèque headless pour construire des calendriers React. Elle fournit tous les composants et hooks nécessaires pour créer des calendriers personnalisés tout en gardant le contrôle total sur l'apparence et le comportement.
+@calendar/react est une bibliothèque pour construire des calendriers React basée sur le pattern headless/styled. Elle fournit tous les composants et hooks nécessaires pour créer des calendriers tout en offrant un contrôle total sur la logique et l'apparence.
 
 ## Philosophie
 
 La bibliothèque suit les principes suivants :
 
-1. **Headless** : Aucun style n'est imposé, vous avez un contrôle total sur l'apparence
+1. **Séparation des préoccupations** : Distinction claire entre logique (headless) et présentation (styled)
 2. **Composable** : Les composants peuvent être assemblés de différentes manières
 3. **Flexible** : Chaque composant peut être personnalisé ou remplacé
 4. **Accessible** : Les composants suivent les bonnes pratiques d'accessibilité
 
-## Structure
+## Architecture
 
-La bibliothèque est composée de :
+La bibliothèque est organisée selon le pattern headless/styled :
 
-- **Composants Headless** : Des composants React sans style qui gèrent la logique
-- **Hooks** : Des hooks React pour gérer l'état et la logique du calendrier
-- **Composants d'exemple** : Des implémentations prêtes à l'emploi
+- **Composants Headless** : Gèrent uniquement la logique et les données, sans style
+- **Composants Styled** : Implémentent l'apparence visuelle en utilisant les composants headless
+- **Hooks** : Gèrent l'état et la logique du calendrier
+- **Contexte** : Fournit un état global partagé
 
 ## Installation
 
@@ -37,58 +38,86 @@ function App() {
     <ReactCalendar 
       dayNameFormat="long"
       withEvents={true}
-      withDaySelection={true}
+      enableDaySelection={true}
     />
   );
 }
 ```
 
-## Utilisation avancée
+## Utilisation avancée avec les composants styled
 
-Pour plus de contrôle, vous pouvez utiliser les composants headless :
+Pour plus de contrôle, vous pouvez utiliser les composants styled individuellement :
 
 ```tsx
 import { 
   CalendarProvider, 
-  CalendarGrid, 
-  CalendarNavigation, 
-  CalendarEvents 
+  CalendarMonthViewStyled, 
+  CalendarNavigationStyled, 
+  CalendarEventsStyled 
 } from '@calendar/react';
 
 function MyCalendar() {
   return (
     <CalendarProvider>
       <div className="calendar">
-        <CalendarNavigation />
-        <CalendarGrid />
-        <CalendarEvents />
+        <CalendarNavigationStyled />
+        <CalendarMonthViewStyled 
+          daySize="medium"
+          selectionStyle="outline"
+        />
+        <CalendarEventsStyled />
       </div>
     </CalendarProvider>
   );
 }
 ```
 
-## Personnalisation
+## Utilisation avancée avec les composants headless
 
-Chaque composant peut être personnalisé :
+Pour un contrôle maximal, vous pouvez utiliser directement les composants headless :
 
 ```tsx
+import { 
+  CalendarProvider, 
+  CalendarMonthView, 
+  CalendarNavigation, 
+  CalendarEvents,
+  CalendarDay
+} from '@calendar/react';
+
 function MyCalendar() {
   return (
     <CalendarProvider>
       <div className="calendar">
-        <CalendarNavigation className="my-navigation" />
-        <CalendarGrid 
-          renderDay={(day) => (
-            <div className="my-day">
-              {day.dayOfMonth}
+        <CalendarNavigation 
+          renderTitle={({ date }) => <h2>{date.toLocaleDateString()}</h2>}
+          renderViewSwitcher={({ view, setView }) => (
+            <div className="custom-switcher">
+              <button onClick={() => setView('month')}>Mois</button>
+              <button onClick={() => setView('week')}>Semaine</button>
             </div>
           )}
         />
+        
+        <CalendarMonthView
+          renderDay={({ day, onDayClick, withEvents }) => (
+            <div 
+              className="custom-day" 
+              onClick={() => onDayClick(day)}
+            >
+              <span className="day-number">{day.dayOfMonth}</span>
+              {withEvents && day.events && day.events.length > 0 && (
+                <span className="event-indicator">•</span>
+              )}
+            </div>
+          )}
+        />
+        
         <CalendarEvents 
-          renderEvent={(event) => (
-            <div className="my-event">
-              {event.title}
+          renderEvent={({ event }) => (
+            <div className="custom-event">
+              <h3>{event.title}</h3>
+              <p>{event.start.toLocaleTimeString()}</p>
             </div>
           )}
         />
@@ -100,6 +129,8 @@ function MyCalendar() {
 
 ## Prochaines étapes
 
-- Découvrez les [composants headless](./components/README.md)
-- Apprenez à utiliser les [hooks](./hooks/README.md)
-- Consultez les [exemples](./examples/README.md) 
+- Découvrez les [composants headless](./components/README.md) pour la logique
+- Explorez les [composants styled](./styled/README.md) pour l'apparence
+- Apprenez à utiliser les [hooks](./hooks/README.md) pour plus de contrôle
+- Consultez les [exemples](./examples/README.md) pour des cas d'utilisation concrets
+- Comprenez l'[architecture](./architecture.md) pour tirer pleinement parti de la bibliothèque 
