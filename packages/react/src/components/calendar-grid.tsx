@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCalendarContext } from './CalendarProvider';
+import { useCalendarContext } from './calendar-provider';
 import type { CalendarDay } from '@calendar/core';
 
 export interface CalendarGridProps {

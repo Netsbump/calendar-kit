@@ -1,6 +1,6 @@
 # useCalendarContext
 
-Le hook `useCalendarContext` permet d'accéder au contexte du calendrier et à ses fonctionnalités. Il est particulièrement utile lorsque vous avez besoin d'accéder à l'état du calendrier dans des composants enfants sans passer les props à travers plusieurs niveaux.
+Le hook `useCalendarContext` permet d'accéder au contexte du calendrier dans les composants headless. Il fournit l'état et les méthodes nécessaires pour gérer le calendrier.
 
 ## API
 
@@ -8,16 +8,18 @@ Le hook `useCalendarContext` permet d'accéder au contexte du calendrier et à s
 interface CalendarContextValue {
   // État
   currentDate: Date;
-  currentView: 'month' | 'week';
+  view: CalendarView;
   events: CalendarEvent[];
   selectedDate: Date | null;
 
   // Actions
-  setCurrentDate: (date: Date) => void;
-  setCurrentView: (view: 'month' | 'week') => void;
+  goToNext: () => void;
+  goToPrev: () => void;
+  goToToday: () => void;
+  setView: (view: CalendarView) => void;
+  selectDate: (date: Date | null) => void;
   addEvent: (event: CalendarEvent) => void;
   deleteEvent: (eventId: string) => void;
-  selectDate: (date: Date | null) => void;
 
   // Utilitaires
   getMonthGrid: () => CalendarDay[][];
@@ -26,161 +28,39 @@ interface CalendarContextValue {
 }
 ```
 
-## Utilisation de base
+## Utilisation dans un composant headless
 
 ```tsx
 import { useCalendarContext } from '@calendar/react';
 
-function MyCustomComponent() {
-  const { currentDate, events } = useCalendarContext();
+function CalendarNavigation() {
+  const { 
+    currentDate,
+    view,
+    goToNext,
+    goToPrev,
+    goToToday,
+    setView 
+  } = useCalendarContext();
 
   return (
     <div>
-      <h2>Événements du {currentDate.toLocaleDateString()}</h2>
-      <ul>
-        {events.map(event => (
-          <li key={event.id}>{event.title}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
-## Utilisation dans un composant enfant
-
-```tsx
-function CalendarHeader() {
-  const { currentDate, setCurrentDate } = useCalendarContext();
-
-  const handlePrevMonth = () => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() - 1);
-    setCurrentDate(newDate);
-  };
-
-  const handleNextMonth = () => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + 1);
-    setCurrentDate(newDate);
-  };
-
-  return (
-    <div className="calendar-header">
-      <button onClick={handlePrevMonth}>←</button>
-      <span>{currentDate.toLocaleDateString()}</span>
-      <button onClick={handleNextMonth}>→</button>
-    </div>
-  );
-}
-
-function CalendarGrid() {
-  const { currentView, getMonthGrid, getWeekGrid } = useCalendarContext();
-
-  const grid = currentView === 'month' ? getMonthGrid() : getWeekGrid();
-
-  return (
-    <div className="calendar-grid">
-      {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="calendar-row">
-          {row.map((day, dayIndex) => (
-            <div
-              key={dayIndex}
-              className={`calendar-cell ${day.isToday ? 'today' : ''}`}
-            >
-              {day.dayOfMonth}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Calendar() {
-  return (
-    <CalendarProvider>
-      <div className="calendar">
-        <CalendarHeader />
-        <CalendarGrid />
+      <h2>{currentDate.toLocaleDateString()}</h2>
+      <div>
+        <button onClick={goToPrev}>←</button>
+        <button onClick={goToToday}>Aujourd'hui</button>
+        <button onClick={goToNext}>→</button>
       </div>
-    </CalendarProvider>
-  );
-}
-```
-
-## Gestion des événements dans un composant enfant
-
-```tsx
-function EventList() {
-  const { selectedDate, getEventsForDate, deleteEvent } = useCalendarContext();
-
-  const events = selectedDate ? getEventsForDate(selectedDate) : [];
-
-  return (
-    <div className="event-list">
-      <h3>Événements du {selectedDate?.toLocaleDateString()}</h3>
-      {events.length === 0 ? (
-        <p>Aucun événement prévu</p>
-      ) : (
-        <ul>
-          {events.map(event => (
-            <li key={event.id}>
-              <span className="event-time">
-                {new Date(event.start).toLocaleTimeString()}
-              </span>
-              <span className="event-title">{event.title}</span>
-              <button
-                onClick={() => deleteEvent(event.id)}
-                className="delete-button"
-              >
-                Supprimer
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-```
-
-## Exemple complet avec composants enfants
-
-```tsx
-import { useCallback, useMemo } from 'react';
-import { useCalendarContext } from '@calendar/react';
-
-function CalendarHeader() {
-  const { currentDate, currentView, setCurrentDate, setCurrentView } = useCalendarContext();
-
-  const handlePrevMonth = useCallback(() => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() - 1);
-    setCurrentDate(newDate);
-  }, [currentDate, setCurrentDate]);
-
-  const handleNextMonth = useCallback(() => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + 1);
-    setCurrentDate(newDate);
-  }, [currentDate, setCurrentDate]);
-
-  return (
-    <div className="calendar-header">
-      <button onClick={handlePrevMonth}>←</button>
-      <span>{currentDate.toLocaleDateString()}</span>
-      <button onClick={handleNextMonth}>→</button>
-      <div className="view-controls">
-        <button
-          onClick={() => setCurrentView('month')}
-          className={currentView === 'month' ? 'active' : ''}
+      <div>
+        <button 
+          onClick={() => setView('month')}
+          className={view === 'month' ? 'active' : ''}
         >
           Mois
         </button>
-        <button
-          onClick={() => setCurrentView('week')}
-          className={currentView === 'week' ? 'active' : ''}
+        <button 
+          onClick={() => setView('week')}
+          className={view === 'week' ? 'active' : ''}
         >
           Semaine
         </button>
@@ -188,14 +68,108 @@ function CalendarHeader() {
     </div>
   );
 }
+```
+
+## Utilisation dans un composant styled
+
+```tsx
+import { useCalendarContext } from '@calendar/react';
+
+function CalendarNavigationStyled() {
+  const { 
+    currentDate,
+    view,
+    goToNext,
+    goToPrev,
+    goToToday,
+    setView 
+  } = useCalendarContext();
+
+  return (
+    <div className="calendar-navigation">
+      <h2 className="calendar-title">
+        {new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(currentDate)}
+      </h2>
+      <div className="navigation-buttons">
+        <button 
+          className="nav-button"
+          onClick={goToPrev}
+          aria-label="Mois précédent"
+        >
+          ←
+        </button>
+        <button 
+          className="nav-button"
+          onClick={goToToday}
+          aria-label="Aujourd'hui"
+        >
+          Aujourd'hui
+        </button>
+        <button 
+          className="nav-button"
+          onClick={goToNext}
+          aria-label="Mois suivant"
+        >
+          →
+        </button>
+      </div>
+      <div className="view-selector">
+        <button 
+          className={`view-button ${view === 'month' ? 'active' : ''}`}
+          onClick={() => setView('month')}
+          aria-label="Vue mois"
+        >
+          Mois
+        </button>
+        <button 
+          className={`view-button ${view === 'week' ? 'active' : ''}`}
+          onClick={() => setView('week')}
+          aria-label="Vue semaine"
+        >
+          Semaine
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+## Bonnes pratiques
+
+1. **Utilisation dans les composants headless**
+   - Utilisez `useCalendarContext` pour accéder aux données et méthodes
+   - Ne passez pas les données en props
+   - Fournissez des props de rendu personnalisé
+
+2. **Gestion des événements**
+   - Les méthodes du contexte gèrent les événements
+   - Ajoutez vos propres callbacks si nécessaire
+
+3. **Performance**
+   - Utilisez `useMemo` pour les valeurs calculées
+   - Utilisez `useCallback` pour les gestionnaires d'événements
+
+## Exemple complet
+
+```tsx
+import { useCallback, useMemo } from 'react';
+import { useCalendarContext } from '@calendar/react';
 
 function CalendarGrid() {
-  const { currentView, getMonthGrid, getWeekGrid, selectedDate, selectDate } = useCalendarContext();
+  const { 
+    view,
+    getMonthGrid,
+    getWeekGrid,
+    selectedDate,
+    selectDate 
+  } = useCalendarContext();
 
+  // Mémoriser la grille actuelle
   const grid = useMemo(() => {
-    return currentView === 'month' ? getMonthGrid() : getWeekGrid();
-  }, [currentView, getMonthGrid, getWeekGrid]);
+    return view === 'month' ? getMonthGrid() : getWeekGrid();
+  }, [view, getMonthGrid, getWeekGrid]);
 
+  // Mémoriser le gestionnaire de clic
   const handleDateSelect = useCallback((date: Date) => {
     selectDate(date);
   }, [selectDate]);
@@ -225,76 +199,4 @@ function CalendarGrid() {
     </div>
   );
 }
-
-function EventList() {
-  const { selectedDate, getEventsForDate, deleteEvent } = useCalendarContext();
-
-  const events = useMemo(() => {
-    return selectedDate ? getEventsForDate(selectedDate) : [];
-  }, [selectedDate, getEventsForDate]);
-
-  const handleDeleteEvent = useCallback((eventId: string) => {
-    try {
-      deleteEvent(eventId);
-    } catch (error) {
-      console.error('Erreur lors de la suppression de l\'événement:', error);
-    }
-  }, [deleteEvent]);
-
-  if (!selectedDate) return null;
-
-  return (
-    <div className="calendar-events">
-      <h3>Événements du {selectedDate.toLocaleDateString()}</h3>
-      {events.length === 0 ? (
-        <p>Aucun événement prévu</p>
-      ) : (
-        <ul>
-          {events.map(event => (
-            <li key={event.id}>
-              <span className="event-time">
-                {new Date(event.start).toLocaleTimeString()}
-              </span>
-              <span className="event-title">{event.title}</span>
-              <button
-                onClick={() => handleDeleteEvent(event.id)}
-                className="delete-button"
-              >
-                Supprimer
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function Calendar() {
-  return (
-    <CalendarProvider>
-      <div className="calendar">
-        <CalendarHeader />
-        <CalendarGrid />
-        <EventList />
-      </div>
-    </CalendarProvider>
-  );
-}
-```
-
-## Bonnes pratiques
-
-1. **Utilisation dans les composants enfants** : Utilisez `useCalendarContext` dans les composants enfants qui ont besoin d'accéder à l'état du calendrier.
-
-2. **Mémorisation** : Utilisez `useMemo` et `useCallback` pour optimiser les performances des composants qui utilisent le contexte.
-
-3. **Gestion des erreurs** : Gérez les erreurs potentielles lors de l'utilisation des méthodes du contexte.
-
-4. **Performance** : Évitez les re-rendus inutiles en mémorisant les valeurs calculées et les gestionnaires d'événements.
-
-## Prochaines étapes
-
-- Découvrez comment utiliser le hook avec les [composants headless](../components/README.md)
-- Apprenez à utiliser le [useCalendar](./useCalendar.md) pour plus de contrôle
-- Consultez les [exemples](../examples/README.md) pour des cas d'utilisation concrets 
+``` 

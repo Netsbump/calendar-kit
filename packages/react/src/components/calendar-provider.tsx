@@ -7,6 +7,15 @@ interface CalendarContextValue {
   currentDate: Date;
   selectedDate: Date | undefined;
   events: CalendarEvent[];
+  dayNames: string[];
+  monthGrid: {
+    weeks: Array<{
+      days: CalendarDay[];
+    }>;
+  };
+  weekGrid: {
+    days: CalendarDay[];
+  };
   goToNext: () => void;
   goToPrev: () => void;
   goToToday: () => void;
@@ -52,6 +61,9 @@ export function CalendarProvider({
     currentDate: calendar.currentDate,
     selectedDate: calendar.selectedDate,
     events: calendar.events,
+    dayNames: calendar.getDayNames('short'),
+    monthGrid: calendar.getMonthGrid(),
+    weekGrid: calendar.getWeekGrid(),
     goToNext: calendar.goToNext,
     goToPrev: calendar.goToPrev,
     goToToday: calendar.goToToday,

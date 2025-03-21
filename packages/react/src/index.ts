@@ -3,24 +3,24 @@ export { useCalendar } from './hooks/useCalendar';
 export type { UseCalendarOptions, UseCalendarReturn } from './hooks/useCalendar';
 
 // Components
-export { CalendarProvider } from './components/CalendarProvider';
-export type { CalendarProviderProps } from './components/CalendarProvider';
+export { CalendarProvider } from './components/calendar-provider';
+export type { CalendarProviderProps } from './components/calendar-provider';
 
-export { CalendarGrid } from './components/CalendarGrid';
-export type { CalendarGridProps } from './components/CalendarGrid';
+export { CalendarGrid } from './components/calendar-grid';
+export type { CalendarGridProps } from './components/calendar-grid';
 
-export { CalendarNavigation } from './components/CalendarNavigation';
-export type { CalendarNavigationProps } from './components/CalendarNavigation';
+export { CalendarNavigation } from './components/calendar-navigation';
+export type { CalendarNavigationProps } from './components/calendar-navigation';
 
-export { CalendarEvents } from './components/CalendarEvents';
-export type { CalendarEventsProps } from './components/CalendarEvents';
+export { CalendarEvents } from './components/calendar-events';
+export type { CalendarEventsProps } from './components/calendar-events';
 
 // Example component
-export { ReactCalendar } from './examples/ReactCalendar';
-export type { ReactCalendarProps } from './examples/ReactCalendar';
+export { ReactCalendar } from './examples/react-calendar';
+export type { ReactCalendarProps } from './examples/react-calendar';
 
 // Context
-export { useCalendarContext } from './components/CalendarProvider';
+export { useCalendarContext } from './components/calendar-provider';
 
 // Styles
 import './styles/calendar-grid.css'; 

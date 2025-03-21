@@ -4,16 +4,16 @@ Les composants headless sont les blocs de construction de base de @calendar/reac
 
 ## Liste des composants
 
-### [CalendarProvider](./CalendarProvider.md)
+### [CalendarProvider](./calendar-provider.md)
 Le composant racine qui fournit le contexte et l'état global du calendrier.
 
-### [CalendarGrid](./CalendarGrid.md)
+### [CalendarGrid](./calendar-grid.md)
 Affiche la grille du calendrier (vue mois ou semaine).
 
-### [CalendarNavigation](./CalendarNavigation.md)
+### [CalendarNavigation](./calendar-navigation.md)
 Gère la navigation entre les mois/semaines et le changement de vue.
 
-### [CalendarEvents](./CalendarEvents.md)
+### [CalendarEvents](./calendar-events.md)
 Gère l'affichage et la gestion des événements.
 
 ## Utilisation de base
