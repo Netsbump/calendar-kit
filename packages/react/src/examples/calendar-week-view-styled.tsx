@@ -1,6 +1,7 @@
 import React from 'react';
 import { CalendarWeekView, CalendarWeekViewProps } from '../components/calendar-week-view';
 import { CalendarDayStyled } from './calendar-day-styled';
+import { useCalendarContext } from '../components/calendar-provider';
 import type { CalendarDay } from '@calendar/core';
 
 export interface CalendarWeekViewStyledProps extends Omit<CalendarWeekViewProps, 'renderDay'> {
@@ -28,13 +29,17 @@ export function CalendarWeekViewStyled({
   className = '',
   containerClassName = '',
   style,
-  dayNameFormat,
+  dayNameFormat = 'short',
   gridClassName = '',
-  daySize = 'medium',
+  daySize = 'large',
   selectionStyle = 'outline',
   enableDaySelection = true,
   ...props
 }: CalendarWeekViewStyledProps & { containerClassName?: string }) {
+  // Récupérer les noms des jours à partir du contexte
+  const { getDayNames } = useCalendarContext();
+  const dayNames = getDayNames ? getDayNames(dayNameFormat) : [];
+
   // Fonction de rendu pour un jour
   const renderStyledDay = ({ day, onDayClick, withEvents }: { 
     day: CalendarDay; 
@@ -49,11 +54,44 @@ export function CalendarWeekViewStyled({
       withEvents={withEvents}
       size={daySize}
       selectionStyle={selectionStyle}
+      displayMode="week"
     />
   );
 
+  // Rendu des en-têtes de jours
+  const renderWeekdays = () => {
+    if (!dayNames || dayNames.length === 0) return null;
+    
+    return (
+      <div
+        className="week-days-header"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          gap: '8px',
+          marginBottom: '8px'
+        }}
+      >
+        {dayNames.map((day: string, index: number) => (
+          <div
+            key={`weekday-${index}`}
+            style={{
+              textAlign: 'center',
+              fontWeight: 500,
+              padding: '8px 0',
+              color: '#4b5563'
+            }}
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className={`calendar-week-view-styled ${containerClassName}`}>
+      {renderWeekdays()}
       <CalendarWeekView
         className={className}
         style={{

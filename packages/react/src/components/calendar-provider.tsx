@@ -26,6 +26,7 @@ interface CalendarContextValue {
   deleteEvent: (id: string) => boolean;
   onDayClick?: (day: CalendarDay) => void;
   onEventAdd?: (event: CalendarEvent) => void;
+  getDayNames: (format?: 'long' | 'short' | 'narrow') => string[];
 }
 
 const CalendarContext = createContext<CalendarContextValue | null>(null);
@@ -85,6 +86,7 @@ export function CalendarProvider({
     deleteEvent: calendar.deleteEvent,
     onDayClick,
     onEventAdd,
+    getDayNames: calendar.getDayNames,
   };
 
   return (
