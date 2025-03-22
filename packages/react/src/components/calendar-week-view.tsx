@@ -93,6 +93,7 @@ export function CalendarWeekView({
       {days.map((day) => renderDay({ day, onDayClick, withEvents }))}
     </div>
   ),
+  onDayClick: customOnDayClick,
   enableDaySelection = true
 }: CalendarWeekViewProps) {
   const { 
@@ -108,6 +109,10 @@ export function CalendarWeekView({
   const onDayClick = (day: CalendarDay) => {
     if (enableDaySelection) {
       selectDate(day.date);
+    }
+    
+    if (customOnDayClick) {
+      customOnDayClick(day);
     }
   };
 

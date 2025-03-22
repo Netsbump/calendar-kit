@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CalendarEvents } from '../components/calendar-events';
 import { useCalendarContext } from '../components/calendar-provider';
-import type { CalendarEvent } from '@calendar/core';
+import { CalendarEventFormModalStyled } from './calendar-event-form-modal-styled';
+import type { CalendarEvent, CalendarDay } from '@calendar/core';
 
 export interface CalendarEventsStyledProps {
   className?: string;
@@ -9,7 +10,24 @@ export interface CalendarEventsStyledProps {
 }
 
 export function CalendarEventsStyled({ className = '', style }: CalendarEventsStyledProps) {
-  const { deleteEvent, i18n } = useCalendarContext();
+  const { deleteEvent, i18n, selectedDate } = useCalendarContext();
+  
+  // État pour savoir quel jour est sélectionné pour le formulaire modal
+  const [selectedDay, setSelectedDay] = useState<CalendarDay | undefined>(undefined);
+  
+  // État pour contrôler l'ouverture/fermeture de la modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Fonction pour ouvrir la modal d'ajout d'événement
+  const openEventModal = (day: CalendarDay) => {
+    setSelectedDay(day);
+    setIsModalOpen(true);
+  };
+  
+  // Fonction pour fermer la modal
+  const closeEventModal = () => {
+    setIsModalOpen(false);
+  };
 
   const renderTitle = (date: Date) => (
     <h3 style={{
@@ -19,57 +37,6 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
     }}>
       {i18n.t('events')} {i18n.formatDate(date, { day: 'numeric', month: 'long' })}
     </h3>
-  );
-
-  const renderEventForm = ({ onSubmit, newEventTitle, setNewEventTitle }: {
-    onSubmit: (e: React.FormEvent) => void;
-    newEventTitle: string;
-    setNewEventTitle: (title: string) => void;
-  }) => (
-    <form 
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit(e);
-      }}
-      style={{ marginBottom: '1rem' }}
-    >
-      <div style={{
-        display: 'flex',
-        gap: '0.5rem'
-      }}>
-        <input
-          type="text"
-          value={newEventTitle}
-          onChange={(e) => setNewEventTitle(e.target.value)}
-          placeholder={i18n.t('newEvent')}
-          style={{
-            flex: 1,
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #e5e7eb',
-            borderRadius: '0.375rem'
-          }}
-        />
-        <button
-          type="submit"
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            borderRadius: '0.375rem',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#2563eb';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#3b82f6';
-          }}
-        >
-          {i18n.t('save')}
-        </button>
-      </div>
-    </form>
   );
 
   const renderEvent = (event: CalendarEvent) => (
@@ -136,16 +103,25 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
   );
 
   return (
-    <CalendarEvents
-      className={`calendar-events ${className}`}
-      style={{
-        padding: '1rem',
-        ...style
-      }}
-      renderTitle={renderTitle}
-      renderEventForm={renderEventForm}
-      renderEvent={renderEvent}
-      renderEventList={renderEventList}
-    />
+    <>
+      {/* Affichage de la modal pour l'ajout d'événement */}
+      <CalendarEventFormModalStyled
+        isOpen={isModalOpen}
+        onClose={closeEventModal}
+        selectedDay={selectedDay}
+      />
+      
+      <CalendarEvents
+        className={`calendar-events ${className}`}
+        style={{
+          padding: '1rem',
+          ...style
+        }}
+        renderTitle={renderTitle}
+        renderEvent={renderEvent}
+        renderEventList={renderEventList}
+        onDayClick={openEventModal}
+      />
+    </>
   );
 } 

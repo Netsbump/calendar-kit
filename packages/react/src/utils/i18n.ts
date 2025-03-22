@@ -19,7 +19,8 @@ export type TranslationKey =
   | 'save'
   | 'delete'
   | 'weekView'
-  | 'monthView';
+  | 'monthView'
+  | 'allDay';
 
 interface I18nOptions {
   locale: SupportedLocale;
@@ -46,7 +47,8 @@ const defaultTranslations: Record<SupportedLocale, Record<TranslationKey, string
     save: 'Enregistrer',
     delete: 'Supprimer',
     weekView: 'Semaine',
-    monthView: 'Mois'
+    monthView: 'Mois',
+    allDay: 'Toute la journée'
   },
   'en-US': {
     nextMonth: 'Next',
@@ -65,7 +67,8 @@ const defaultTranslations: Record<SupportedLocale, Record<TranslationKey, string
     save: 'Save',
     delete: 'Delete',
     weekView: 'Week',
-    monthView: 'Month'
+    monthView: 'Month',
+    allDay: 'All day'
   }
 };
 

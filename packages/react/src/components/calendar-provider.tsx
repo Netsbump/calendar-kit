@@ -22,7 +22,7 @@ interface CalendarContextValue {
   goToToday: () => void;
   setView: (view: CalendarView) => void;
   selectDate: (date: Date) => void;
-  addEvent: (event: CalendarEvent) => void;
+  addEvent: (event: Omit<CalendarEvent, 'id'>) => CalendarEvent;
   updateEvent: (id: string, event: Partial<CalendarEvent>) => CalendarEvent | null;
   deleteEvent: (id: string) => boolean;
   onDayClick?: (day: CalendarDay) => void;

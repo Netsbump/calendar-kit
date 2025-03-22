@@ -126,6 +126,7 @@ export function CalendarMonthView({
       {weeks.map((week, weekIndex) => renderWeek({ week, weekIndex, onDayClick, withEvents }))}
     </div>
   ),
+  onDayClick: customOnDayClick,
   enableDaySelection = true
 }: CalendarMonthViewProps) {
   const { 
@@ -140,8 +141,14 @@ export function CalendarMonthView({
   } = useCalendarContext();
 
   const onDayClick = (day: CalendarDay) => {
+    // Sélectionner la date si enableDaySelection est true
     if (enableDaySelection) {
       selectDate(day.date);
+    }
+    
+    // Appeler la fonction personnalisée si elle existe
+    if (customOnDayClick) {
+      customOnDayClick(day);
     }
   };
 

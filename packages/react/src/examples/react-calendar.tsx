@@ -4,6 +4,8 @@ import { CalendarMonthViewStyled } from './calendar-month-view-styled';
 import { CalendarWeekViewStyled } from './calendar-week-view-styled';
 import { CalendarEventsStyled } from './calendar-events-styled';
 import { CalendarProvider, useCalendarContext } from '../components/calendar-provider';
+import { useState } from 'react';
+import { CalendarEventFormModalStyled } from './calendar-event-form-modal-styled';
 import { SupportedLocale, TranslationKey } from '../utils/i18n';
 
 /**
@@ -71,14 +73,18 @@ export interface ReactCalendarProps {
 /**
  * Fonction interne qui récupère le composant de vue approprié selon la vue active
  */
-function getViewComponent(view: CalendarView, dayNameFormat: 'short' | 'long' | 'narrow') {
+function getViewComponent(
+  view: CalendarView, 
+  dayNameFormat: 'short' | 'long' | 'narrow', 
+  onDayClick?: (day: CoreCalendarDay) => void
+) {
   switch(view) {
     case 'month':
-      return <CalendarMonthViewStyled dayNameFormat={dayNameFormat} />;
+      return <CalendarMonthViewStyled dayNameFormat={dayNameFormat} onDayClick={onDayClick} />;
     case 'week':
-      return <CalendarWeekViewStyled dayNameFormat={dayNameFormat} />;
+      return <CalendarWeekViewStyled dayNameFormat={dayNameFormat} onDayClick={onDayClick} />;
     default:
-      return <CalendarMonthViewStyled dayNameFormat={dayNameFormat} />;
+      return <CalendarMonthViewStyled dayNameFormat={dayNameFormat} onDayClick={onDayClick} />;
   }
 }
 
@@ -145,32 +151,55 @@ function ReactCalendarContent({
   className: string;
   dayNameFormat: 'short' | 'long' | 'narrow';
 }) {
+  // État pour gérer la modal d'événement
+  const [selectedDay, setSelectedDay] = useState<CoreCalendarDay | undefined>(undefined);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  
   // Accès au contexte pour le rendu conditionnel
   const { view, i18n } = useCalendarContext();
   const showEvents = interactionMode === 'events';
   
+  // Gestionnaire pour ouvrir la modal quand un jour est cliqué
+  const handleDayClick = (day: CoreCalendarDay) => {
+    if (interactionMode === 'events') {
+      setSelectedDay(day);
+      setIsEventModalOpen(true);
+    }
+  };
+  
   return (
-    <div className={`calendar-container ${className}`} style={{
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
-      maxWidth: '800px',
-      margin: '0 auto',
-      border: '1px solid #e2e8f0',
-      borderRadius: '8px',
-      overflow: 'hidden',
-    }}>
-      {/* Le composant de navigation accède au contexte via useCalendarContext */}
-      <CalendarNavigationStyled />
+    <>
+      {/* Modal d'ajout d'événement */}
+      {showEvents && (
+        <CalendarEventFormModalStyled
+          isOpen={isEventModalOpen}
+          onClose={() => setIsEventModalOpen(false)}
+          selectedDay={selectedDay}
+        />
+      )}
       
-      <div style={{ display: 'flex' }}>
-        <div className="calendar-content" style={{ padding: '16px', flex: 1 }}>
-          {/* Rendu conditionnel basé sur la vue active */}
-          {getViewComponent(view, dayNameFormat)}
-        </div>
+      <div className={`calendar-container ${className}`} style={{
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
+        maxWidth: '800px',
+        margin: '0 auto',
+        border: '1px solid #e2e8f0',
+        borderRadius: '8px',
+        overflow: 'hidden',
+      }}>
+        {/* Le composant de navigation accède au contexte via useCalendarContext */}
+        <CalendarNavigationStyled />
         
-        {showEvents && (
-          <CalendarEventsStyled />
-        )}
+        <div style={{ display: 'flex' }}>
+          <div className="calendar-content" style={{ padding: '16px', flex: 1 }}>
+            {/* Rendu conditionnel basé sur la vue active */}
+            {getViewComponent(view, dayNameFormat, showEvents ? handleDayClick : undefined)}
+          </div>
+          
+          {showEvents && (
+            <CalendarEventsStyled />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
