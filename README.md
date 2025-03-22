@@ -96,6 +96,7 @@ function App() {
     <ReactCalendar 
       dayNameFormat="long"
       interactionMode="events"
+      locale="fr-FR"
       onDayClick={(day) => console.log('Jour cliqué:', day)}
       onEventAdd={(event) => console.log('Événement ajouté:', event)}
       onViewChange={(view) => console.log('Vue changée:', view)}
@@ -111,6 +112,9 @@ Le composant `ReactCalendar` prend en charge plusieurs options :
   - `view-only` : Mode lecture seule (par défaut)
   - `selection` : Permet la sélection de jours
   - `events` : Mode complet avec sélection de jours et gestion d'événements
+- `locale` : Langue et format régional ('fr-FR' ou 'en-US')
+  - `fr-FR` : Interface en français, la semaine commence le lundi (par défaut)
+  - `en-US` : Interface en anglais, la semaine commence le dimanche
 - `className` : Classes CSS personnalisées
 - Callbacks : `onDayClick`, `onEventAdd`, `onViewChange`, `onDateChange`
 

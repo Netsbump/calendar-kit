@@ -23,6 +23,12 @@ const meta = {
       options: ['view-only', 'selection', 'events'],
       defaultValue: 'view-only',
       description: 'Mode d\'interaction avec le calendrier'
+    },
+    locale: {
+      control: 'select',
+      options: ['fr-FR', 'en-US'],
+      defaultValue: 'fr-FR',
+      description: 'Locale pour l\'internationalisation'
     }
   }
 } satisfies Meta<typeof ReactCalendar>;
@@ -30,11 +36,21 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof ReactCalendar>;
 
-// Story par défaut (lecture seule)
+// Story par défaut (lecture seule, français)
 export const Default: Story = {
   args: {
     dayNameFormat: 'short',
-    interactionMode: 'view-only' as InteractionMode
+    interactionMode: 'view-only' as InteractionMode,
+    locale: 'fr-FR'
+  }
+};
+
+// Story avec locale américaine
+export const EnglishLocale: Story = {
+  args: {
+    dayNameFormat: 'short',
+    interactionMode: 'view-only' as InteractionMode,
+    locale: 'en-US'
   }
 };
 
@@ -42,7 +58,8 @@ export const Default: Story = {
 export const LongDayNames: Story = {
   args: {
     dayNameFormat: 'long',
-    interactionMode: 'view-only' as InteractionMode
+    interactionMode: 'view-only' as InteractionMode,
+    locale: 'fr-FR'
   }
 };
 
@@ -50,7 +67,8 @@ export const LongDayNames: Story = {
 export const NarrowDayNames: Story = {
   args: {
     dayNameFormat: 'narrow',
-    interactionMode: 'view-only' as InteractionMode
+    interactionMode: 'view-only' as InteractionMode,
+    locale: 'fr-FR'
   }
 };
 
@@ -58,7 +76,8 @@ export const NarrowDayNames: Story = {
 export const WithSelection: Story = {
   args: {
     dayNameFormat: 'short',
-    interactionMode: 'selection' as InteractionMode
+    interactionMode: 'selection' as InteractionMode,
+    locale: 'fr-FR'
   }
 };
 
@@ -66,6 +85,7 @@ export const WithSelection: Story = {
 export const WithEvents: Story = {
   args: {
     dayNameFormat: 'short',
-    interactionMode: 'events' as InteractionMode
+    interactionMode: 'events' as InteractionMode,
+    locale: 'fr-FR'
   }
 }; 

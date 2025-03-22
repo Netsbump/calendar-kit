@@ -25,6 +25,7 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     defaultView = 'month',
     defaultDate = new Date(),
     firstDayOfWeek = 0,
+    locale,
     events: initialEvents = [],
     selectedDate: initialSelectedDate,
     onSelectDate,
@@ -39,15 +40,19 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     get view() {
       return currentView;
     },
+    
     get currentDate() {
       return new Date(currentDate);
     },
+    
     get firstDayOfWeek() {
       return firstDayOfWeek;
     },
+    
     get events() {
       return [...events];
     },
+    
     get selectedDate() {
       return selectedDate ? new Date(selectedDate) : undefined;
     },
@@ -134,26 +139,30 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     },
     
     getEvents(start, end) {
-      if (!start && !end) return [...events];
+      if (!start && !end) {
+        return [...events];
+      }
       
       return events.filter(event => {
         if (start && end) {
+          // Check if event overlaps with interval
           return isWithinInterval(event.start, { start, end }) || 
                  isWithinInterval(event.end, { start, end }) ||
                  (event.start <= start && event.end >= end);
+        } else if (start) {
+          // Check if event is on or after start date
+          return event.end >= start;
+        } else if (end) {
+          // Check if event is on or before end date
+          return event.start <= end;
         }
-        if (start) {
-          return event.start >= start || event.end >= start;
-        }
-        if (end) {
-          return event.start <= end || event.end <= end;
-        }
+        
         return true;
       });
     },
     
     getMonthGrid() {
-      const grid = generateMonthGrid(currentDate, firstDayOfWeek);
+      const grid = generateMonthGrid(currentDate, firstDayOfWeek, locale);
       
       // Add selected state and events to each day
       for (const week of grid.weeks) {
@@ -174,7 +183,7 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     },
     
     getWeekGrid() {
-      const grid = generateWeekGrid(currentDate, firstDayOfWeek);
+      const grid = generateWeekGrid(currentDate, firstDayOfWeek, locale);
       
       // Add selected state and events to each day
       for (const day of grid.days) {
@@ -193,11 +202,11 @@ export function createCalendar(options: CalendarOptions = {}): Calendar {
     },
     
     getDayNames(format: 'long' | 'short' | 'narrow' = 'short') {
-      return getGridDayNames(firstDayOfWeek, format);
+      return getGridDayNames(firstDayOfWeek, format, locale);
     },
     
     getMonthNames(format: 'long' | 'short' | 'narrow' = 'long') {
-      return getGridMonthNames(format);
+      return getGridMonthNames(format, locale);
     },
     
     selectDate(date: Date) {

@@ -4,6 +4,7 @@ import { CalendarMonthViewStyled } from './calendar-month-view-styled';
 import { CalendarWeekViewStyled } from './calendar-week-view-styled';
 import { CalendarEventsStyled } from './calendar-events-styled';
 import { CalendarProvider, useCalendarContext } from '../components/calendar-provider';
+import { SupportedLocale, TranslationKey } from '../utils/i18n';
 
 /**
  * Mode d'interaction avec le calendrier
@@ -51,6 +52,20 @@ export interface ReactCalendarProps {
    * Fonction appelée lorsque la date courante change
    */
   onDateChange?: (date: Date) => void;
+
+  /**
+   * Locale pour l'internationalisation (par défaut: 'fr-FR')
+   * Valeurs possibles: 'fr-FR' ou 'en-US'
+   * Détermine automatiquement le premier jour de la semaine :
+   * - 'fr-FR' : La semaine commence le lundi (1)
+   * - 'en-US' : La semaine commence le dimanche (0)
+   */
+  locale?: SupportedLocale;
+  
+  /**
+   * Traductions personnalisées qui seront fusionnées avec les traductions par défaut
+   */
+  customTranslations?: Record<SupportedLocale, Record<TranslationKey, string>>;
 }
 
 /**
@@ -83,7 +98,9 @@ export function ReactCalendar({
   onDayClick,
   onEventAdd,
   onViewChange,
-  onDateChange
+  onDateChange,
+  locale = 'fr-FR',
+  customTranslations,
 }: ReactCalendarProps) {
   // Dériver les comportements à partir du mode d'interaction
   const enableDaySelection = interactionMode === 'selection' || interactionMode === 'events';
@@ -103,6 +120,8 @@ export function ReactCalendar({
       onEventAdd={onEventAdd}
       dayNameFormat={dayNameFormat}
       enableDaySelection={enableDaySelection}
+      locale={locale}
+      customTranslations={customTranslations}
     >
       <ReactCalendarContent 
         interactionMode={interactionMode}
@@ -127,7 +146,7 @@ function ReactCalendarContent({
   dayNameFormat: 'short' | 'long' | 'narrow';
 }) {
   // Accès au contexte pour le rendu conditionnel
-  const { view } = useCalendarContext();
+  const { view, i18n } = useCalendarContext();
   const showEvents = interactionMode === 'events';
   
   return (

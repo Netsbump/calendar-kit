@@ -134,7 +134,9 @@ export function CalendarMonthView({
     events,
     selectDate,
     dayNames: contextDayNames,
-    monthGrid
+    monthGrid,
+    getDayNames,
+    locale
   } = useCalendarContext();
 
   const onDayClick = (day: CalendarDay) => {
@@ -148,7 +150,6 @@ export function CalendarMonthView({
   // Priorité :
   // 1. Utiliser le format spécifié dans les props du composant (si fourni)
   // 2. Sinon, utiliser les noms de jours déjà formatés dans le contexte
-  // 3. En dernier recours, générer les noms avec le format par défaut ('short')
   const formattedDayNames = dayNameFormat ? 
     getDayNames(dayNameFormat) : 
     contextDayNames;

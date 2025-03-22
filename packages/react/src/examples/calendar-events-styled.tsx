@@ -9,7 +9,7 @@ export interface CalendarEventsStyledProps {
 }
 
 export function CalendarEventsStyled({ className = '', style }: CalendarEventsStyledProps) {
-  const { deleteEvent } = useCalendarContext();
+  const { deleteEvent, i18n } = useCalendarContext();
 
   const renderTitle = (date: Date) => (
     <h3 style={{
@@ -17,7 +17,7 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
       fontWeight: 500,
       marginBottom: '1rem'
     }}>
-      Événements du {date.toLocaleDateString()}
+      {i18n.t('events')} {i18n.formatDate(date, { day: 'numeric', month: 'long' })}
     </h3>
   );
 
@@ -41,7 +41,7 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
           type="text"
           value={newEventTitle}
           onChange={(e) => setNewEventTitle(e.target.value)}
-          placeholder="Nouvel événement"
+          placeholder={i18n.t('newEvent')}
           style={{
             flex: 1,
             padding: '0.5rem 0.75rem',
@@ -66,7 +66,7 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
             e.currentTarget.style.backgroundColor = '#3b82f6';
           }}
         >
-          Ajouter
+          {i18n.t('save')}
         </button>
       </div>
     </form>
@@ -87,7 +87,7 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
           fontSize: '0.875rem',
           color: '#4b5563'
         }}>
-          {event.start.toLocaleTimeString()} - {event.end.toLocaleTimeString()}
+          {i18n.formatDate(event.start, { hour: '2-digit', minute: '2-digit' })} - {i18n.formatDate(event.end, { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
       <button
@@ -105,7 +105,7 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
         onMouseOut={(e) => {
           e.currentTarget.style.color = '#ef4444';
         }}
-        aria-label="Supprimer l'événement"
+        aria-label={i18n.t('delete')}
       >
         ×
       </button>
@@ -121,11 +121,17 @@ export function CalendarEventsStyled({ className = '', style }: CalendarEventsSt
       flexDirection: 'column',
       gap: '0.5rem'
     }}>
-      {events.map((event) => (
-        <div key={event.id}>
-          {renderEvent(event)}
+      {events.length > 0 ? (
+        events.map((event) => (
+          <div key={event.id}>
+            {renderEvent(event)}
+          </div>
+        ))
+      ) : (
+        <div style={{ padding: '0.5rem', textAlign: 'center', color: '#6b7280' }}>
+          {i18n.t('noEvents')}
         </div>
-      ))}
+      )}
     </div>
   );
 

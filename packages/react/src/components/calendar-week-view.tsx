@@ -101,7 +101,8 @@ export function CalendarWeekView({
     events,
     selectDate,
     dayNames: contextDayNames,
-    weekGrid
+    weekGrid,
+    locale
   } = useCalendarContext();
 
   const onDayClick = (day: CalendarDay) => {
@@ -114,22 +115,21 @@ export function CalendarWeekView({
 
   // Ajouter le nom du jour à chaque jour de la semaine
   // en utilisant le format spécifié dans les props ou celui du contexte
-  const daysWithDayNames = weekGrid.days.map(day => ({
-    ...day,
-    dayOfWeek: getDayNameForDate(day.date, dayNameFormat)
-  }));
+  const daysWithDayNames = weekGrid.days.map(day => {
+    // Formatter le nom du jour en utilisant la locale du contexte
+    const formatter = new Intl.DateTimeFormat(locale, { 
+      weekday: dayNameFormat || 'short' 
+    });
+    
+    return {
+      ...day,
+      dayOfWeek: formatter.format(day.date)
+    };
+  });
 
   return (
     <div className={`calendar-week-view ${className}`} style={style}>
       {renderGrid({ days: daysWithDayNames, renderDay, onDayClick, withEvents })}
     </div>
   );
-}
-
-/**
- * Fonction utilitaire pour obtenir le nom du jour pour une date donnée
- */
-function getDayNameForDate(date: Date, format: 'long' | 'short' | 'narrow' = 'short'): string {
-  const formatter = new Intl.DateTimeFormat('fr-FR', { weekday: format });
-  return formatter.format(date);
 } 

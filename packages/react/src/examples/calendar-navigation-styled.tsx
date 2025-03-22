@@ -1,5 +1,6 @@
 import type { CalendarView } from '@calendar/core';
 import { CalendarNavigation } from '../components/calendar-navigation';
+import { useCalendarContext } from '../components/calendar-provider';
 
 export interface CalendarNavigationStyledProps {
   /**
@@ -26,6 +27,8 @@ export function CalendarNavigationStyled({
   onViewChange,
   onDateChange
 }: CalendarNavigationStyledProps) {
+  const { i18n } = useCalendarContext();
+
   return (
     <CalendarNavigation
       className={`calendar-header ${className}`} // Pour les classes CSS (Tailwind ou autres)
@@ -44,7 +47,7 @@ export function CalendarNavigationStyled({
             fontSize: '1.25rem',
             textTransform: 'capitalize',
           }}>
-            {new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(currentDate)}
+            {i18n.formatDate(currentDate, { month: 'long', year: 'numeric' })}
           </h2>
         </div>
       )}
@@ -64,7 +67,7 @@ export function CalendarNavigationStyled({
               cursor: 'pointer',
             }}
           >
-            Précédent
+            {i18n.t('prevMonth')}
           </button>
           <button 
             type="button"
@@ -77,7 +80,7 @@ export function CalendarNavigationStyled({
               cursor: 'pointer',
             }}
           >
-            Aujourd'hui
+            {i18n.t('today')}
           </button>
           <button 
             type="button"
@@ -90,7 +93,7 @@ export function CalendarNavigationStyled({
               cursor: 'pointer',
             }}
           >
-            Suivant
+            {i18n.t('nextMonth')}
           </button>
         </div>
       )}
@@ -106,8 +109,8 @@ export function CalendarNavigationStyled({
             }}
           >
             {/* <option value="day">Jour</option> */}
-            <option value="week">Semaine</option>
-            <option value="month">Mois</option>
+            <option value="week">{i18n.t('weekView')}</option>
+            <option value="month">{i18n.t('monthView')}</option>
             {/* <option value="year">Année</option> */}
           </select>
         </div>

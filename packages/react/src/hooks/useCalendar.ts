@@ -33,8 +33,6 @@ export interface UseCalendarReturn {
   getEvents: (start?: Date, end?: Date) => CalendarEvent[];
   getMonthGrid: () => CalendarMonth;
   getWeekGrid: () => CalendarWeek;
-  getDayNames: (format?: 'long' | 'short' | 'narrow') => string[];
-  getMonthNames: (format?: 'long' | 'short' | 'narrow') => string[];
   selectDate: (date: Date) => void;
   getSelectedDate: () => Date | undefined;
   createEventOnDate: (date: Date, eventData?: Partial<Omit<CalendarEvent, 'id' | 'start' | 'end'>>) => CalendarEvent;
@@ -128,14 +126,6 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     return calendar.getWeekGrid();
   }, [calendar]);
   
-  const getDayNames = useCallback((format?: 'long' | 'short' | 'narrow') => {
-    return calendar.getDayNames(format);
-  }, [calendar]);
-  
-  const getMonthNames = useCallback((format?: 'long' | 'short' | 'narrow') => {
-    return calendar.getMonthNames(format);
-  }, [calendar]);
-  
   // Fonctions de sélection
   const selectDate = useCallback((date: Date) => {
     calendar.selectDate(date);
@@ -183,8 +173,6 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarReturn
     getEvents,
     getMonthGrid,
     getWeekGrid,
-    getDayNames,
-    getMonthNames,
     selectDate,
     getSelectedDate,
     createEventOnDate,
