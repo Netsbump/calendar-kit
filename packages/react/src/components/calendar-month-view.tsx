@@ -91,8 +91,8 @@ export function CalendarMonthView({
   renderWeekday = ({ day }) => <div className="weekday">{day}</div>,
   renderWeekdays = ({ dayNames }) => (
     <div className="weekdays">
-      {dayNames.map((day) => (
-        <div key={day}>
+      {dayNames.map((day, index) => (
+        <div key={`weekday-${index}`}>
           {renderWeekday({ day })}
         </div>
       ))}

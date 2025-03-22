@@ -105,10 +105,10 @@ export function CalendarNavigationStyled({
               borderRadius: '4px',
             }}
           >
-            <option value="day">Jour</option>
+            {/* <option value="day">Jour</option> */}
             <option value="week">Semaine</option>
             <option value="month">Mois</option>
-            <option value="year">Année</option>
+            {/* <option value="year">Année</option> */}
           </select>
         </div>
       )}

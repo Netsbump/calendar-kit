@@ -90,8 +90,8 @@ export function CalendarMonthViewStyled({
           gridTemplateColumns: 'repeat(7, 1fr)',
           gap: '8px'
         }}>
-          {dayNames.map((day) => (
-            <div key={day} style={{ textAlign: 'center' }}>
+          {dayNames.map((day, index) => (
+            <div key={`weekday-${index}`} style={{ textAlign: 'center' }}>
               {renderWeekday({ day })}
             </div>
           ))}

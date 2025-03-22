@@ -157,8 +157,8 @@ const UseCalendarDemo = () => {
             borderRadius: '4px',
             border: '1px solid #e2e8f0'
           }}>
-            {dayNames.map((day) => (
-              <div key={day} style={{ flex: 1, textAlign: 'center' }}>{day}</div>
+            {dayNames.map((day, index) => (
+              <div key={`day-${index}`} style={{ flex: 1, textAlign: 'center' }}>{day}</div>
             ))}
           </div>
         </div>
