@@ -1,10 +1,11 @@
-import type { CalendarView, CalendarDay as CoreCalendarDay, CalendarEvent } from '@calendar/core';
-import { CalendarNavigationStyled } from './calendar-navigation-styled';
+import React, { useState } from 'react';
+import { CalendarView, CalendarDay as CoreCalendarDay, CalendarEvent as CoreCalendarEvent } from '@calendar/core';
+import { CalendarProvider, useCalendarContext } from '../components/calendar-provider';
 import { CalendarMonthViewStyled } from './calendar-month-view-styled';
 import { CalendarWeekViewStyled } from './calendar-week-view-styled';
-import { CalendarEventsStyled } from './calendar-events-styled';
-import { CalendarProvider, useCalendarContext } from '../components/calendar-provider';
-import { useState } from 'react';
+import { CalendarNavigationStyled } from './calendar-navigation-styled';
+import { CalendarEventListStyled } from './calendar-event-list-styled';
+import { CalendarEventDetailModal } from './calendar-event-detail-modal';
 import { CalendarEventFormModalStyled } from './calendar-event-form-modal-styled';
 import { SupportedLocale, TranslationKey } from '../utils/i18n';
 
@@ -18,56 +19,60 @@ export type InteractionMode = 'view-only' | 'selection' | 'events';
 
 export interface ReactCalendarProps {
   /**
-   * Mode d'interaction avec le calendrier
-   * - view-only: Calendrier en lecture seule (par défaut)
-   * - selection: Permet la sélection de jours
-   * - events: Mode complet avec sélection de jours et gestion d'événements
-   */
-  interactionMode?: InteractionMode;
-  
-  /**
-   * Format des noms de jours
+   * Format d'affichage des noms de jours
+   * @default 'short'
    */
   dayNameFormat?: 'short' | 'long' | 'narrow';
   
   /**
-   * Classes CSS personnalisées
+   * Mode d'interaction avec le calendrier
+   * - view-only: Affichage simple sans interactions
+   * - selection: Permet de sélectionner des jours
+   * - events: Permet de sélectionner des jours ET d'ajouter/éditer des événements
+   */
+  interactionMode?: InteractionMode;
+  
+  /**
+   * Classes CSS additionnelles pour le calendrier
    */
   className?: string;
   
   /**
-   * Fonction appelée lorsqu'un jour est cliqué
+   * Locale pour le calendrier (fr-FR ou en-US)
+   * @default 'en-US'
    */
-  onDayClick?: (day: CoreCalendarDay) => void;
+  locale?: 'fr-FR' | 'en-US';
+  
+  /**
+   * Liste d'événements initiale
+   */
+  initialEvents?: CoreCalendarEvent[];
   
   /**
    * Fonction appelée lorsqu'un événement est ajouté
    */
-  onEventAdd?: (event: CalendarEvent) => void;
+  onEventAdd?: (event: CoreCalendarEvent) => void;
   
   /**
-   * Fonction appelée lorsque la vue change
+   * Fonction appelée lorsqu'un événement est supprimé
    */
-  onViewChange?: (view: CalendarView) => void;
+  onEventDelete?: (eventId: string) => void;
   
   /**
-   * Fonction appelée lorsque la date courante change
+   * Fonction appelée lorsqu'un événement est modifié
    */
-  onDateChange?: (date: Date) => void;
-
-  /**
-   * Locale pour l'internationalisation (par défaut: 'fr-FR')
-   * Valeurs possibles: 'fr-FR' ou 'en-US'
-   * Détermine automatiquement le premier jour de la semaine :
-   * - 'fr-FR' : La semaine commence le lundi (1)
-   * - 'en-US' : La semaine commence le dimanche (0)
-   */
-  locale?: SupportedLocale;
+  onEventEdit?: (event: CoreCalendarEvent) => void;
   
   /**
-   * Traductions personnalisées qui seront fusionnées avec les traductions par défaut
+   * Fonction appelée lorsqu'un jour est sélectionné
    */
-  customTranslations?: Record<SupportedLocale, Record<TranslationKey, string>>;
+  onDaySelect?: (day: CoreCalendarDay) => void;
+  
+  /**
+   * Vue initiale du calendrier
+   * @default 'month'
+   */
+  initialView?: CalendarView;
 }
 
 /**
@@ -89,50 +94,39 @@ function getViewComponent(
 }
 
 /**
- * Composant de calendrier React prêt à l'emploi mais personnalisable.
- * Ce composant est un assemblage de composants styled qui eux-mêmes
- * sont des implémentations de composants headless.
- * 
- * Le ReactCalendar a deux rôles principaux :
- * 1. Configurer le CalendarProvider qui fournit le contexte global
- * 2. Assembler les composants styled dans une interface cohérente
+ * Version finalisée du calendrier React avec tous les composants stylisés
  */
-export function ReactCalendar({ 
-  interactionMode = 'view-only',
+export function ReactCalendar({
   dayNameFormat = 'short',
+  interactionMode = 'view-only',
   className = '',
-  onDayClick,
+  locale = 'en-US',
+  initialEvents = [],
   onEventAdd,
-  onViewChange,
-  onDateChange,
-  locale = 'fr-FR',
-  customTranslations,
+  onEventDelete,
+  onEventEdit,
+  onDaySelect,
+  initialView = 'month'
 }: ReactCalendarProps) {
   // Dériver les comportements à partir du mode d'interaction
   const enableDaySelection = interactionMode === 'selection' || interactionMode === 'events';
-  const enableEvents = interactionMode === 'events';
-
+  
   return (
     <CalendarProvider
-      defaultView="month"
+      locale={locale}
+      defaultView={initialView}
       defaultDate={new Date()}
-      onViewChange={onViewChange}
-      onDateChange={onDateChange}
-      onDayClick={(day) => {
-        if (onDayClick) {
-          onDayClick(day);
-        }
-      }}
-      onEventAdd={onEventAdd}
       dayNameFormat={dayNameFormat}
       enableDaySelection={enableDaySelection}
-      locale={locale}
-      customTranslations={customTranslations}
+      onEventAdd={onEventAdd}
     >
-      <ReactCalendarContent 
+      <ReactCalendarContent
         interactionMode={interactionMode}
         className={className}
         dayNameFormat={dayNameFormat}
+        onDaySelect={onDaySelect}
+        onEventEdit={onEventEdit}
+        onEventDelete={onEventDelete}
       />
     </CalendarProvider>
   );
@@ -145,36 +139,95 @@ export function ReactCalendar({
 function ReactCalendarContent({ 
   interactionMode,
   className,
-  dayNameFormat
+  dayNameFormat,
+  onDaySelect,
+  onEventEdit,
+  onEventDelete
 }: { 
   interactionMode: InteractionMode;
   className: string;
   dayNameFormat: 'short' | 'long' | 'narrow';
+  onDaySelect?: (day: CoreCalendarDay) => void;
+  onEventEdit?: (event: CoreCalendarEvent) => void;
+  onEventDelete?: (eventId: string) => void;
 }) {
-  // État pour gérer la modal d'événement
+  // États pour gérer les modales
   const [selectedDay, setSelectedDay] = useState<CoreCalendarDay | undefined>(undefined);
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isEventFormModalOpen, setIsEventFormModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CoreCalendarEvent | undefined>(undefined);
+  const [isEventDetailModalOpen, setIsEventDetailModalOpen] = useState(false);
   
   // Accès au contexte pour le rendu conditionnel
-  const { view, i18n } = useCalendarContext();
+  const { view, events, addEvent, deleteEvent, updateEvent, selectedDate } = useCalendarContext();
+  
+  // Filtrer les événements du jour sélectionné
+  const selectedDateEvents = selectedDate 
+    ? events.filter(event => event.start.toDateString() === selectedDate.toDateString())
+    : [];
+  
+  // Indique si les événements sont activés
   const showEvents = interactionMode === 'events';
+  const allowSelection = interactionMode === 'selection' || interactionMode === 'events';
   
   // Gestionnaire pour ouvrir la modal quand un jour est cliqué
   const handleDayClick = (day: CoreCalendarDay) => {
-    if (interactionMode === 'events') {
-      setSelectedDay(day);
-      setIsEventModalOpen(true);
+    setSelectedDay(day);
+    
+    if (allowSelection && onDaySelect) {
+      onDaySelect(day);
     }
+    
+    if (showEvents) {
+      setIsEventFormModalOpen(true);
+    }
+  };
+  
+  // Gestionnaire pour ouvrir le détail d'un événement
+  const handleEventClick = (event: CoreCalendarEvent) => {
+    if (showEvents) {
+      setSelectedEvent(event);
+      setIsEventDetailModalOpen(true);
+    }
+  };
+  
+  // Gestionnaire pour éditer un événement
+  const handleEventEdit = (event: CoreCalendarEvent) => {
+    setSelectedEvent(event);
+    setIsEventFormModalOpen(true);
+    
+    if (onEventEdit) {
+      onEventEdit(event);
+    }
+  };
+
+  // Gestionnaire pour supprimer un événement
+  const handleEventDelete = (eventId: string) => {
+    deleteEvent(eventId);
+    if (onEventDelete) {
+      onEventDelete(eventId);
+    }
+    // Fermer la modale de détail si elle est ouverte
+    setIsEventDetailModalOpen(false);
   };
   
   return (
     <>
-      {/* Modal d'ajout d'événement */}
+      {/* Modal de création d'événement */}
       {showEvents && (
         <CalendarEventFormModalStyled
-          isOpen={isEventModalOpen}
-          onClose={() => setIsEventModalOpen(false)}
+          isOpen={isEventFormModalOpen}
+          onClose={() => setIsEventFormModalOpen(false)}
           selectedDay={selectedDay}
+        />
+      )}
+      
+      {/* Modal de détail d'événement */}
+      {showEvents && selectedEvent && (
+        <CalendarEventDetailModal
+          isOpen={isEventDetailModalOpen}
+          onClose={() => setIsEventDetailModalOpen(false)}
+          event={selectedEvent}
+          onEdit={handleEventEdit}
         />
       )}
       
@@ -192,11 +245,34 @@ function ReactCalendarContent({
         <div style={{ display: 'flex' }}>
           <div className="calendar-content" style={{ padding: '16px', flex: 1 }}>
             {/* Rendu conditionnel basé sur la vue active */}
-            {getViewComponent(view, dayNameFormat, showEvents ? handleDayClick : undefined)}
+            {view === 'month' && (
+              <CalendarMonthViewStyled 
+                dayNameFormat={dayNameFormat}
+                onDayClick={allowSelection ? handleDayClick : undefined}
+              />
+            )}
+            {view === 'week' && (
+              <CalendarWeekViewStyled 
+                dayNameFormat={dayNameFormat}
+                onDayClick={allowSelection ? handleDayClick : undefined}
+              />
+            )}
           </div>
           
-          {showEvents && (
-            <CalendarEventsStyled />
+          {/* Affichage des événements pour le jour sélectionné */}
+          {showEvents && selectedDate && (
+            <div className="calendar-sidebar" style={{ 
+              width: '300px', 
+              borderLeft: '1px solid #e2e8f0',
+              backgroundColor: '#f8fafc'
+            }}>
+              <CalendarEventListStyled
+                events={selectedDateEvents}
+                date={selectedDate}
+                onEventClick={handleEventClick}
+                onEventEdit={handleEventEdit}
+              />
+            </div>
           )}
         </div>
       </div>
