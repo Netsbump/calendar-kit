@@ -36,7 +36,7 @@ export { CalendarEventsStyled } from './examples/calendar-events-styled';
 
 // Composant principal
 export { ReactCalendar } from './examples/react-calendar';
-export type { ReactCalendarProps } from './examples/react-calendar';
+export type { ReactCalendarProps, InteractionMode } from './examples/react-calendar';
 
 // Context
 export { useCalendarContext } from './components/calendar-provider';

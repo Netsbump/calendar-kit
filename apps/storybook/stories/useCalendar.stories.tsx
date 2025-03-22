@@ -1,9 +1,10 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { ReactCalendar } from '@calendar/react';
-import type { ReactCalendarProps } from '@calendar/react';
+import type { ReactCalendarProps, InteractionMode } from '@calendar/react';
 
-const meta: Meta<typeof ReactCalendar> = {
+// Définition du meta avec les contrôles
+const meta = {
   title: 'Components/ReactCalendar',
   component: ReactCalendar,
   parameters: {
@@ -17,28 +18,23 @@ const meta: Meta<typeof ReactCalendar> = {
       defaultValue: 'short',
       description: 'Format des noms de jours'
     },
-    withEvents: {
-      control: 'boolean',
-      defaultValue: false,
-      description: 'Activer la gestion des événements'
-    },
-    withDaySelection: {
-      control: 'boolean',
-      defaultValue: false,
-      description: 'Activer la sélection des jours'
+    interactionMode: {
+      control: 'select',
+      options: ['view-only', 'selection', 'events'],
+      defaultValue: 'view-only',
+      description: 'Mode d\'interaction avec le calendrier'
     }
   }
-};
+} satisfies Meta<typeof ReactCalendar>;
 
 export default meta;
 type Story = StoryObj<typeof ReactCalendar>;
 
-// Story par défaut
+// Story par défaut (lecture seule)
 export const Default: Story = {
   args: {
     dayNameFormat: 'short',
-    withEvents: false,
-    withDaySelection: false
+    interactionMode: 'view-only' as InteractionMode
   }
 };
 
@@ -46,8 +42,7 @@ export const Default: Story = {
 export const LongDayNames: Story = {
   args: {
     dayNameFormat: 'long',
-    withEvents: false,
-    withDaySelection: false
+    interactionMode: 'view-only' as InteractionMode
   }
 };
 
@@ -55,16 +50,22 @@ export const LongDayNames: Story = {
 export const NarrowDayNames: Story = {
   args: {
     dayNameFormat: 'narrow',
-    withEvents: false,
-    withDaySelection: false
+    interactionMode: 'view-only' as InteractionMode
+  }
+};
+
+// Story avec sélection de jours uniquement
+export const WithSelection: Story = {
+  args: {
+    dayNameFormat: 'short',
+    interactionMode: 'selection' as InteractionMode
   }
 };
 
 // Story avec sélection de jours et gestion d'événements
-export const WithEventsAndSelection: Story = {
+export const WithEvents: Story = {
   args: {
     dayNameFormat: 'short',
-    withEvents: true,
-    withDaySelection: true
+    interactionMode: 'events' as InteractionMode
   }
 }; 

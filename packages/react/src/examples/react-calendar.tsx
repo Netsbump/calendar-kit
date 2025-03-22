@@ -5,21 +5,27 @@ import { CalendarWeekViewStyled } from './calendar-week-view-styled';
 import { CalendarEventsStyled } from './calendar-events-styled';
 import { CalendarProvider, useCalendarContext } from '../components/calendar-provider';
 
+/**
+ * Mode d'interaction avec le calendrier
+ * - view-only: lecture seule
+ * - selection: sélection des jours activée
+ * - events: sélection des jours et gestion des événements activées
+ */
+export type InteractionMode = 'view-only' | 'selection' | 'events';
+
 export interface ReactCalendarProps {
+  /**
+   * Mode d'interaction avec le calendrier
+   * - view-only: Calendrier en lecture seule (par défaut)
+   * - selection: Permet la sélection de jours
+   * - events: Mode complet avec sélection de jours et gestion d'événements
+   */
+  interactionMode?: InteractionMode;
+  
   /**
    * Format des noms de jours
    */
   dayNameFormat?: 'short' | 'long' | 'narrow';
-  
-  /**
-   * Activer la gestion des événements
-   */
-  withEvents?: boolean;
-  
-  /**
-   * Activer la sélection des jours
-   */
-  withDaySelection?: boolean;
   
   /**
    * Classes CSS personnalisées
@@ -71,15 +77,18 @@ function getViewComponent(view: CalendarView, dayNameFormat: 'short' | 'long' | 
  * 2. Assembler les composants styled dans une interface cohérente
  */
 export function ReactCalendar({ 
+  interactionMode = 'view-only',
   dayNameFormat = 'short',
-  withEvents = false,
-  withDaySelection = false,
   className = '',
   onDayClick,
   onEventAdd,
   onViewChange,
   onDateChange
 }: ReactCalendarProps) {
+  // Dériver les comportements à partir du mode d'interaction
+  const enableDaySelection = interactionMode === 'selection' || interactionMode === 'events';
+  const enableEvents = interactionMode === 'events';
+
   return (
     <CalendarProvider
       defaultView="month"
@@ -93,11 +102,10 @@ export function ReactCalendar({
       }}
       onEventAdd={onEventAdd}
       dayNameFormat={dayNameFormat}
-      enableDaySelection={withDaySelection}
+      enableDaySelection={enableDaySelection}
     >
       <ReactCalendarContent 
-        withEvents={withEvents} 
-        withDaySelection={withDaySelection} 
+        interactionMode={interactionMode}
         className={className}
         dayNameFormat={dayNameFormat}
       />
@@ -110,18 +118,17 @@ export function ReactCalendar({
  * Ce pattern permet de lire le contexte après que le Provider a été initialisé
  */
 function ReactCalendarContent({ 
-  withEvents, 
-  withDaySelection, 
+  interactionMode,
   className,
   dayNameFormat
 }: { 
-  withEvents: boolean; 
-  withDaySelection: boolean; 
+  interactionMode: InteractionMode;
   className: string;
   dayNameFormat: 'short' | 'long' | 'narrow';
 }) {
   // Accès au contexte pour le rendu conditionnel
   const { view } = useCalendarContext();
+  const showEvents = interactionMode === 'events';
   
   return (
     <div className={`calendar-container ${className}`} style={{
@@ -141,7 +148,7 @@ function ReactCalendarContent({
           {getViewComponent(view, dayNameFormat)}
         </div>
         
-        {withEvents && withDaySelection && (
+        {showEvents && (
           <CalendarEventsStyled />
         )}
       </div>

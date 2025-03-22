@@ -95,8 +95,7 @@ function App() {
   return (
     <ReactCalendar 
       dayNameFormat="long"
-      withEvents={true}
-      withDaySelection={true}
+      interactionMode="events"
       onDayClick={(day) => console.log('Jour cliqué:', day)}
       onEventAdd={(event) => console.log('Événement ajouté:', event)}
       onViewChange={(view) => console.log('Vue changée:', view)}
@@ -108,8 +107,10 @@ function App() {
 
 Le composant `ReactCalendar` prend en charge plusieurs options :
 - `dayNameFormat` : Format des noms de jours ('short', 'long', 'narrow')
-- `withEvents` : Activer la gestion des événements
-- `withDaySelection` : Activer la sélection des jours
+- `interactionMode` : Mode d'interaction avec le calendrier ('view-only', 'selection', 'events')
+  - `view-only` : Mode lecture seule (par défaut)
+  - `selection` : Permet la sélection de jours
+  - `events` : Mode complet avec sélection de jours et gestion d'événements
 - `className` : Classes CSS personnalisées
 - Callbacks : `onDayClick`, `onEventAdd`, `onViewChange`, `onDateChange`
 

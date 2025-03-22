@@ -19,12 +19,19 @@ function App() {
   return (
     <ReactCalendar 
       dayNameFormat="long"
-      withEvents={true}
-      withDaySelection={true}
+      interactionMode="events"
     />
   );
 }
 ```
+
+## Modes d'interaction disponibles
+
+Le calendrier supporte différents modes d'interaction :
+
+- `view-only` : Mode lecture seule (par défaut)
+- `selection` : Permet la sélection de jours
+- `events` : Mode complet avec sélection de jours et gestion d'événements
 
 ## Composants Headless
 
