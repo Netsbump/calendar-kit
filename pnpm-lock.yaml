@@ -42,14 +42,14 @@ importers:
         specifier: 2.4.4
         version: 2.4.4
 
-  apps/storybook:
+  examples/storybook:
     dependencies:
-      '@calendar/core':
+      '@calendar/calendar-core':
         specifier: workspace:*
-        version: link:../../packages/core
-      '@calendar/react':
+        version: link:../../packages/calendar-core
+      '@calendar/react-calendar':
         specifier: workspace:*
-        version: link:../../packages/react
+        version: link:../../packages/react-calendar
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -88,7 +88,7 @@ importers:
         specifier: ^5.0.0
         version: 5.4.14(@types/node@22.13.8)(terser@5.39.0)
 
-  packages/core:
+  packages/calendar-core:
     dependencies:
       date-fns:
         specifier: ^4.1.0
@@ -107,11 +107,11 @@ importers:
         specifier: ^1.0.0
         version: 1.6.1(@types/node@22.13.8)(terser@5.39.0)
 
-  packages/react:
+  packages/react-calendar:
     dependencies:
-      '@calendar/core':
+      '@calendar/calendar-core':
         specifier: workspace:*
-        version: link:../core
+        version: link:../calendar-core
       react:
         specifier: ^18.0.0
         version: 18.3.1
